@@ -1,3 +1,8 @@
+# TODO
+- 指定したノード/エッジのみをグラフ描画
+	- khop-in-subgraphの実装が必要そう
+	- 統計値から選択できるようにする
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started

@@ -1,23 +1,11 @@
 import { ForceGraph3D } from "react-force-graph";
-import { LinkObject, NodeObject } from "react-force-graph-3d";
 import { Object3D } from "three";
 import {
   CSS2DRenderer,
   CSS2DObject,
 } from "three/examples/jsm/renderers/CSS2DRenderer.js";
+import {GraphData, MyLinkObject} from "../models/GraphData";
 
-export type MyNodeObject = NodeObject & {
-  group: number;
-};
-
-export type MyLinkObject = LinkObject & {
-  value: number;
-};
-
-export type GraphData = {
-  nodes: MyNodeObject[];
-  links: MyLinkObject[];
-};
 
 type MyForceGraph3DProps = {
   graphData: GraphData;
