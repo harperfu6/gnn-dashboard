@@ -1,20 +1,28 @@
-import { GraphData } from "../models/GraphData";
+import { Button, Grid, Spacer } from "@nextui-org/react";
+import { GraphData, MyNodeObject } from "../models/GraphData";
+import Describe from "./Describe";
+import NodeItem from "./NodeItem";
 
 type GraphStatsProps = {
   graphData: GraphData;
 };
 
 const GraphStats = (props: GraphStatsProps) => {
-  const nodes = props.graphData.nodes;
-  const links = props.graphData.links;
-
-  const nodeNum = nodes.length;
-  const linkNum = links.length;
+  const graphData = props.graphData;
+  const nodes = graphData.nodes;
+  const links = graphData.links;
 
   return (
     <>
-      <div>node num: {nodeNum}</div>
-      <div>edge num: {linkNum}</div>
+      <Grid.Container direction="column">
+        <Grid>
+          <Describe graphData={graphData} />
+        </Grid>
+        <Spacer />
+        <Grid>
+          <NodeItem graphData={graphData} />
+        </Grid>
+      </Grid.Container>
     </>
   );
 };

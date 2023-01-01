@@ -4,6 +4,7 @@ import useSWR from "swr";
 import dynamic from "next/dynamic";
 import { GraphData, MyLinkObject } from "../../../models/GraphData";
 import GraphStats from "../../../components/GraphStats";
+import { Grid } from "@nextui-org/react";
 
 const MyForceGraph3D = dynamic(() => import("../../../components/ForceGraph"), {
   ssr: false,
@@ -15,7 +16,10 @@ const Graph = () => {
   const router = useRouter();
   const { epochId, sampleId } = router.query;
 
-  const { data, error } = useSWR(epochId ? `/api/graph/${epochId}/${sampleId}` : null, fetcher);
+  const { data, error } = useSWR(
+    epochId ? `/api/graph/${epochId}/${sampleId}` : null,
+    fetcher
+  );
   const graphData: GraphData = data;
 
   const forceGraphViewWidth = 1000;
@@ -58,15 +62,20 @@ const Graph = () => {
 
   return (
     <>
-      <GraphStats graphData={graphData} />
-      ===
-      <MyForceGraph3D
-        graphData={graphData}
-        width={forceGraphViewWidth}
-        height={forceGraphViewHeight}
-        linkWidth={linkWidth}
-        nodeThreeObject={nodeThreeObject}
-      />
+      <Grid.Container gap={2} justify="center">
+        <Grid xs={4}>
+          <GraphStats graphData={graphData} />
+        </Grid>
+        <Grid xs={8}>
+          <MyForceGraph3D
+            graphData={graphData}
+            width={forceGraphViewWidth}
+            height={forceGraphViewHeight}
+            linkWidth={linkWidth}
+            nodeThreeObject={nodeThreeObject}
+          />
+        </Grid>
+      </Grid.Container>
     </>
   );
 };

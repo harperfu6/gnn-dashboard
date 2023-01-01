@@ -1,4 +1,4 @@
-import { ForceGraph3D } from "react-force-graph";
+import { ForceGraph2D, ForceGraph3D } from "react-force-graph";
 import { Object3D } from "three";
 import {
   CSS2DRenderer,
@@ -23,7 +23,7 @@ type MyForceGraph3DProps = {
 
 const MyForceGraph3D = (props: MyForceGraph3DProps) => {
   return (
-    <ForceGraph3D
+		<ForceGraph3D
       graphData={props.graphData}
       width={props.width}
       height={props.height}

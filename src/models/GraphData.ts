@@ -2,6 +2,7 @@ import { LinkObject, NodeObject } from "react-force-graph-3d";
 
 export type MyNodeObject = NodeObject & {
   group: number;
+	ntype: string;
 };
 
 export type MyLinkObject = LinkObject & {
@@ -9,6 +10,8 @@ export type MyLinkObject = LinkObject & {
 };
 
 export type GraphData = {
+	ntype: string[];
+	etype: string[];
   nodes: MyNodeObject[];
   links: MyLinkObject[];
 };
