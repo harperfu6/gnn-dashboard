@@ -5,6 +5,7 @@ import NodeItem from "./NodeItem";
 
 type GraphStatsProps = {
   graphData: GraphData;
+	setSelectedNodeObject: (myNodeObject: MyNodeObject) => void;
 };
 
 const GraphStats = (props: GraphStatsProps) => {
@@ -20,7 +21,7 @@ const GraphStats = (props: GraphStatsProps) => {
         </Grid>
         <Spacer />
         <Grid>
-          <NodeItem graphData={graphData} />
+          <NodeItem graphData={graphData} setSelectedNodeObject={props.setSelectedNodeObject}/>
         </Grid>
       </Grid.Container>
     </>

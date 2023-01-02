@@ -2,45 +2,27 @@ import { Button, Grid, styled } from "@nextui-org/react";
 import { useState } from "react";
 import { GraphData, MyNodeObject } from "../models/GraphData";
 
-type ButtonNodeObject = MyNodeObject & {
-  selected: boolean;
-};
-type ButtonNodeItemDict = { [ntype: string]: ButtonNodeObject[] };
+type nodeItemDict = { [ntype: string]: MyNodeObject[] };
 
-const addSelect2NodeObject = (
-  nodeObjects: MyNodeObject[]
-): ButtonNodeObject[] => {
-  const buttonNodeObjects = nodeObjects.map((nodeItem: MyNodeObject) => {
-    const _nodeItem = { ...nodeItem, selected: false };
-    return _nodeItem;
-  });
-  return buttonNodeObjects;
-};
-
-const getNodeItemDict = (graphData: GraphData): ButtonNodeItemDict => {
+const getNodeObjectDict = (graphData: GraphData): nodeItemDict => {
   const ntype = graphData.ntype;
   const nodes = graphData.nodes;
 
-  // add selection attribute for button selection
-  const nodesWithSelect = addSelect2NodeObject(nodes);
-
-  let itemDict: { [ntype: string]: ButtonNodeObject[] } = {};
+  let itemDict: { [ntype: string]: MyNodeObject[] } = {};
   ntype.forEach((n) => {
-    itemDict[n] = nodesWithSelect.filter((node) => node.ntype == n);
+    itemDict[n] = nodes.filter((node) => node.ntype == n);
   });
   return itemDict;
 };
 
-const sortNodeItemDict = (
-  nodeItemDict: ButtonNodeItemDict
-): ButtonNodeItemDict => {
+const sortNodeItemDict = (nodeItemDict: nodeItemDict): nodeItemDict => {
   const compareFunc = (
-    nodeItem1: ButtonNodeObject,
-    nodeItem2: ButtonNodeObject
+    nodeItem1: MyNodeObject,
+    nodeItem2: MyNodeObject
   ): number => {
     return nodeItem1.id > nodeItem2.id ? 1 : -1;
   };
-  let newNodeItemDict: { [ntype: string]: ButtonNodeObject[] } = {};
+  let newNodeItemDict: { [ntype: string]: MyNodeObject[] } = {};
   Object.entries(nodeItemDict).forEach(([ntype, items]) => {
     items.sort(compareFunc);
     newNodeItemDict[ntype] = items;
@@ -50,6 +32,7 @@ const sortNodeItemDict = (
 
 type NodeItemProps = {
   graphData: GraphData;
+	setSelectedNodeObject: (myNodeObject: MyNodeObject) => void;
 };
 
 const NodeItem = (props: NodeItemProps) => {
@@ -57,54 +40,22 @@ const NodeItem = (props: NodeItemProps) => {
   const ntypeList = graphData.ntype;
 
   // node type button
-  let selectedNtypeDictDefault: { [ntype: string]: boolean } = {};
-  ntypeList.forEach((ntype) => {
-    selectedNtypeDictDefault[ntype] = false;
-  });
-
-  const ntypeDefault = ntypeList[0];
-  selectedNtypeDictDefault[ntypeDefault] = true;
-  const [selectedNtype, setSelectedNtype] = useState<string>(ntypeDefault);
-  const [selectedNtypeDict, setSelectedNtypeDict] = useState<{
-    [ntype: string]: boolean;
-  }>(selectedNtypeDictDefault);
+  const [selectedNtype, setSelectedNtype] = useState<string>(ntypeList[0]);
 
   const onNodeTypeClicked = (selectedNtype: string) => {
-    let _selectedNtypeDict: { [ntype: string]: boolean } = {};
-    ntypeList.forEach((n) => {
-      if (n === selectedNtype) {
-        _selectedNtypeDict[n] = true;
-      } else {
-        _selectedNtypeDict[n] = false;
-      }
-    });
-    setSelectedNtypeDict(_selectedNtypeDict);
     setSelectedNtype(selectedNtype);
   };
 
   // node item button
-  const nodeItemDictDefalut = sortNodeItemDict(getNodeItemDict(graphData));
-  const [selectedNodeItemDict, setSelectedNodeItemDict] =
-    useState<ButtonNodeItemDict>(nodeItemDictDefalut);
+  const nodeItemDict = sortNodeItemDict(getNodeObjectDict(graphData));
+  const [selectedNodeObjectId, setSelectedNodeObjectId] = useState<string>("");
 
   const onNodeItemClicked = (
     selectedNtype: string,
-    selectedNodeItem: ButtonNodeObject
+    selectedNodeItem: MyNodeObject
   ) => {
-		console.log(nodeItemDictDefalut);
-    setSelectedNodeItemDict(nodeItemDictDefalut);
-
-    const _selectedNodeItem = { ...selectedNodeItem, selected: true };
-    const nodeItemList = selectedNodeItemDict[selectedNtype];
-    let newNodeItemList = nodeItemList.filter(
-      (item: ButtonNodeObject) => item.id !== selectedNodeItem.id
-    );
-    newNodeItemList.push(_selectedNodeItem);
-    let newSelectedNodeItemDict = selectedNodeItemDict;
-    delete newSelectedNodeItemDict[selectedNtype];
-    newSelectedNodeItemDict[selectedNtype] = newNodeItemList;
-
-    setSelectedNodeItemDict(sortNodeItemDict(newSelectedNodeItemDict));
+    setSelectedNodeObjectId(selectedNodeItem.id);
+		props.setSelectedNodeObject(selectedNodeItem);
   };
 
   return (
@@ -112,7 +63,7 @@ const NodeItem = (props: NodeItemProps) => {
       <Grid.Container>
         <Grid>
           {ntypeList.map((ntype: string) => {
-            if (selectedNtypeDict[ntype] === true) {
+            if (ntype === selectedNtype) {
               return (
                 <NodeTypeButton
                   key={ntype}
@@ -143,33 +94,31 @@ const NodeItem = (props: NodeItemProps) => {
             overflow: "scroll",
           }}
         >
-          {selectedNodeItemDict[selectedNtype].map(
-            (nodeItem: ButtonNodeObject) => {
-              if (nodeItem.selected === true) {
-                return (
-                  <NodeItemButton
-                    key={nodeItem.id}
-                    size="basic"
-                    color="selected"
-                    onPress={() => onNodeItemClicked(selectedNtype, nodeItem)}
-                  >
-                    {nodeItem.id}
-                  </NodeItemButton>
-                );
-              } else {
-                return (
-                  <NodeItemButton
-                    key={nodeItem.id}
-                    size="basic"
-                    color="basic"
-                    onPress={() => onNodeItemClicked(selectedNtype, nodeItem)}
-                  >
-                    {nodeItem.id}
-                  </NodeItemButton>
-                );
-              }
+          {nodeItemDict[selectedNtype].map((nodeItem: ButtonNodeObject) => {
+            if (nodeItem.id === selectedNodeObjectId) {
+              return (
+                <NodeItemButton
+                  key={nodeItem.id}
+                  size="basic"
+                  color="selected"
+                  onPress={() => onNodeItemClicked(selectedNtype, nodeItem)}
+                >
+                  {nodeItem.id}
+                </NodeItemButton>
+              );
+            } else {
+              return (
+                <NodeItemButton
+                  key={nodeItem.id}
+                  size="basic"
+                  color="basic"
+                  onPress={() => onNodeItemClicked(selectedNtype, nodeItem)}
+                >
+                  {nodeItem.id}
+                </NodeItemButton>
+              );
             }
-          )}
+          })}
         </Grid>
       </Grid.Container>
     </>

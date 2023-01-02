@@ -4,16 +4,16 @@
 	- ノード種別ごとの名称表示
 		- ~~- 表示数を減らす~~
 		- ~~- カラム名の除外~~
-		- 選択したノードの赤字表示
+		- ~~- 選択したノードの赤字表示~~
 		- 検索機能の追加
-	- エッジ種別ごとの名称表示
+- 指定したノード/エッジのみをグラフ描画
+	- 特定のノードとkを指定したらkhop-in-subgraphを表示
+		- khop-in-subgraphの実装
 - 全サンプリングの統計情報
 	- エポック数/サンプリング数
 	- ノード種別ごとのサンプリング回数ランキング
-- 指定したノード/エッジのみをグラフ描画
-	- 赤字表示
-	- khop-in-subgraphの実装が必要そう
-	- 統計値から選択できるようにする
+- 学習結果の表示
+	- score分布
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
