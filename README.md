@@ -6,14 +6,17 @@
 		- ~~- カラム名の除外~~
 		- ~~- 選択したノードの赤字表示~~
 		- 検索機能の追加
-- 指定したノード/エッジのみをグラフ描画
-	- 特定のノードとkを指定したらkhop-in-subgraphを表示
-		- khop-in-subgraphの実装
+	- 2Dグラフにする？
+- 学習結果の表示
+	- score分布
+- S3から取得
 - 全サンプリングの統計情報
 	- エポック数/サンプリング数
 	- ノード種別ごとのサンプリング回数ランキング
-- 学習結果の表示
-	- score分布
+	- lossの変化
+	- AUC/ACCの変化
+- 特定のノードとkを指定したらkhop-in-subgraphを表示
+	- khop-in-subgraphの実装
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 

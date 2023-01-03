@@ -1,5 +1,4 @@
 import { useRouter } from "next/router";
-import { CSS2DObject } from "three/examples/jsm/renderers/CSS2DRenderer";
 import useSWR from "swr";
 import dynamic from "next/dynamic";
 import { GraphData, MyLinkObject, MyNodeObject } from "../../../models/GraphData";
