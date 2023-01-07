@@ -1,27 +1,29 @@
 import { Button, Grid, Spacer } from "@nextui-org/react";
 import { GraphData, MyNodeObject } from "../models/GraphData";
+import MiniBatchStats from "../pages/minibatch_stats/[epochId]/[sampleId]";
 import Describe from "./Describe";
-import NodeItem from "./NodeItem";
 
 type GraphStatsProps = {
   graphData: GraphData;
-	setSelectedNodeObject: (myNodeObject: MyNodeObject) => void;
+  setSelectedNodeObject: (myNodeObject: MyNodeObject) => void;
+  epochId: number;
+  sampleId: number;
 };
 
-const GraphStats = (props: GraphStatsProps) => {
-  const graphData = props.graphData;
-  const nodes = graphData.nodes;
-  const links = graphData.links;
-
+const GraphStats: React.FC<GraphStatsProps> = ({
+  graphData,
+  setSelectedNodeObject,
+  epochId,
+  sampleId,
+}) => {
   return (
     <>
-      <Grid.Container direction="column">
-        <Grid>
+      <Grid.Container>
+        <Grid xs={12}>
           <Describe graphData={graphData} />
         </Grid>
-        <Spacer />
-        <Grid>
-          <NodeItem graphData={graphData} setSelectedNodeObject={props.setSelectedNodeObject}/>
+        <Grid xs={12}>
+          <MiniBatchStats epochId={epochId} sampleId={sampleId} />
         </Grid>
       </Grid.Container>
     </>

@@ -32,7 +32,7 @@ const sortNodeItemDict = (nodeItemDict: nodeItemDict): nodeItemDict => {
 
 type NodeItemProps = {
   graphData: GraphData;
-	setSelectedNodeObject: (myNodeObject: MyNodeObject) => void;
+  setSelectedNodeObject: (myNodeObject: MyNodeObject) => void;
 };
 
 const NodeItem = (props: NodeItemProps) => {
@@ -55,7 +55,7 @@ const NodeItem = (props: NodeItemProps) => {
     selectedNodeItem: MyNodeObject
   ) => {
     setSelectedNodeObjectId(selectedNodeItem.id);
-		props.setSelectedNodeObject(selectedNodeItem);
+    props.setSelectedNodeObject(selectedNodeItem);
   };
 
   return (
@@ -90,7 +90,7 @@ const NodeItem = (props: NodeItemProps) => {
         </Grid>
         <Grid
           css={{
-            h: "500px",
+            h: "250px",
             overflow: "scroll",
           }}
         >

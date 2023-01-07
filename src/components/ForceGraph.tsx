@@ -57,22 +57,26 @@ const MyForceGraph3D = (props: MyForceGraph3DProps) => {
     return new CSS2DObject(nodeEl);
   };
 
-  return (
+  {/* return ( */}
+  {/*   <ForceGraph3D */}
+  {/*     graphData={props.graphData} */}
+  {/*     width={viewWidth} */}
+  {/*     height={viewHeight} */}
+  {/*     nodeLabel={props.nodeLabel} */}
+  {/*     nodeAutoColorBy={props.nodeAutoColorBy} */}
+  {/*     linkDirectionalArrowLength={props.linkDirectionalArrowLength} */}
+  {/*     linkDirectionalArrowRelPos={props.linkDirectionalArrowRelPos} */}
+  {/*     linkCurvature={props.linkCurvature} */}
+  {/*     enableNodeDrag={props.enableNodeDrag} */}
+  {/*     extraRenderers={[new CSS2DRenderer()]} */}
+  {/*     linkWidth={linkWidth} */}
+  {/*     nodeThreeObject={nodeThreeObject} */}
+  {/*   /> */}
+  {/* ); */}
+	return (
     <ForceGraph3D
-      graphData={props.graphData}
-      width={viewWidth}
-      height={viewHeight}
-      nodeLabel={props.nodeLabel}
-      nodeAutoColorBy={props.nodeAutoColorBy}
-      linkDirectionalArrowLength={props.linkDirectionalArrowLength}
-      linkDirectionalArrowRelPos={props.linkDirectionalArrowRelPos}
-      linkCurvature={props.linkCurvature}
-      enableNodeDrag={props.enableNodeDrag}
-      extraRenderers={[new CSS2DRenderer()]}
-      linkWidth={linkWidth}
-      nodeThreeObject={nodeThreeObject}
     />
-  );
+	)
 };
 
 MyForceGraph3D.defaultProps = {

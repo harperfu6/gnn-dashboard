@@ -7,6 +7,7 @@ export type MyNodeObject = NodeObject & {
 
 export type MyLinkObject = LinkObject & {
   value: number;
+	etype: string;
 };
 
 export type GraphData = {

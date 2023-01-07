@@ -4,3 +4,10 @@ export type MiniBatchStats = {
   loss: number;
   auc: number;
 };
+
+export type AllMiniBatchStats = {
+  minibatch_id: string;
+  loss: number;
+  auc: number;
+  sampled_num: { [posNeg: string]: { [node: string]: number } };
+};
