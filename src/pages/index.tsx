@@ -168,9 +168,9 @@ const AllMiniBatchStats: React.FC = () => {
         {ntypeList &&
           ntypeList.map((ntype: string) => {
             const data = makeBarDataByNtype(posSampledNumDict, ntype);
-            const vwh = 100 / ntypeList.length;
+						const vw = Math.ceil(100 / ntypeList.length) - 1;
             return (
-              <Grid key={ntype} css={{ w: `${vwh}vw`, h: `${vwh * 1.5}vw` }}>
+              <Grid key={ntype} css={{ w: `${vw}vw`, h: `${vw * 1.5}vw` }}>
                 <Bar options={barOptions} data={data} />
               </Grid>
             );

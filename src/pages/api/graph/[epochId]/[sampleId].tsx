@@ -9,9 +9,9 @@ const handler = async (
 ) => {
   const { epochId, sampleId } = req.query;
 
-  const jsonDirectory = path.join(process.cwd(), "datasets");
+  const jsonDirectory = path.join(process.cwd(), "datasets", "minibatch_stats_json_data");
   const fileContents = await fs.readFile(
-    jsonDirectory + `/epoch-${epochId}-sampler-${sampleId}-positive.json`,
+    jsonDirectory + `/epoch${epochId}-sample${sampleId}-positive_graph.json`,
     "utf8"
   );
   return res.status(200).json(JSON.parse(fileContents));

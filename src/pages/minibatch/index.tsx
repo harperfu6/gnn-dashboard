@@ -1,16 +1,6 @@
 import { Key, useState } from "react";
-import { MyNodeObject } from "../../models/GraphData";
 import useSWR from "swr";
-import {
-  Card,
-  Col,
-  Container,
-  Dropdown,
-  Grid,
-  Row,
-  Spacer,
-  Text,
-} from "@nextui-org/react";
+import { Dropdown, Grid } from "@nextui-org/react";
 import NodeEdgeNum from "../../components/NodeEdgeNum";
 
 import { Chart as ChartJS, registerables } from "chart.js";
@@ -39,11 +29,11 @@ const getEpochSampleIdList = (data: AllMiniBatchStatsType[]) => {
   );
   const epochIdList = Array.from(
     { length: uniqueEpochIdList.length },
-    (_, i) => `epoch-${i + 1}`
+    (_, i) => i + 1
   );
   const sampleIdList = Array.from(
     { length: uniqueSampleIdList.length },
-    (_, i) => `sample-${i}`
+    (_, i) => i
   );
   return { epochIdList: epochIdList, sampleIdList: sampleIdList };
 };
@@ -57,20 +47,8 @@ type MiniBatchStatsProps = {
 
 // useRouterで取得したepochIdとsampleIdをuseStateに初期値として設定できなかったのでpropsとして渡す
 const MiniBatch: React.FC<MiniBatchStatsProps> = ({ epochId, sampleId }) => {
-  const [selectedEpochId, setSelectedEpochId] = useState<string>(
-    epochId ? `epoch-${epochId}` : ""
-  );
-  const [selectedSampleId, setSelectedSampleId] = useState<string>(
-    `sample-${sampleId}`
-  );
-
   const { data: graphData, error: graphDataError } = useSWR(
     epochId ? `/api/graph/${epochId}/${sampleId}` : null,
-    fetcher
-  );
-
-  const { data: allMiniBatchStatsList, error: allMiniBatchIdError } = useSWR(
-    `/api/minibatch_stats/`,
     fetcher
   );
 
@@ -79,46 +57,14 @@ const MiniBatch: React.FC<MiniBatchStatsProps> = ({ epochId, sampleId }) => {
     fetcher
   );
 
-  if (allMiniBatchIdError || miniBatchStatsError || graphDataError)
-    return <div>failed to load</div>;
-  if (!allMiniBatchStatsList || !miniBatchStats || !graphData)
-    return <div>loading...</div>;
-
-  const { epochIdList, sampleIdList } = getEpochSampleIdList(
-    allMiniBatchStatsList
-  );
-
-  const onEpochIdSelectionChange = (keys: any) => {
-    setSelectedEpochId(keys);
-  };
-
-  const onSampleIdSelectionChange = (keys: any) => {
-    setSelectedSampleId(keys);
-  };
+  if (miniBatchStatsError || graphDataError) return <div>failed to load</div>;
+  if (!miniBatchStats || !graphData) return <div>loading...</div>;
 
   return (
     <>
       <Grid.Container>
         <Grid xs={6}>
           <Grid.Container>
-            <Grid xs={12}>
-              <IdSelector
-                idDictList={epochIdList.map((epochId: string) => ({
-                  key: epochId,
-                  id: epochId,
-                }))}
-                selected={selectedEpochId}
-                onSelectionChange={onEpochIdSelectionChange}
-              />
-              <IdSelector
-                idDictList={sampleIdList.map((sampleId: string) => ({
-                  key: sampleId,
-                  id: sampleId,
-                }))}
-                selected={selectedSampleId}
-                onSelectionChange={onSampleIdSelectionChange}
-              />
-            </Grid>
             <Grid xs={12}>
               <MiniBatchStats miniBatchStats={miniBatchStats} />
             </Grid>
@@ -136,7 +82,7 @@ const MiniBatch: React.FC<MiniBatchStatsProps> = ({ epochId, sampleId }) => {
 };
 
 type idDict = {
-  key: string;
+  key: number;
   id: string;
 };
 
@@ -168,7 +114,54 @@ const IdSelector: React.FC<IdSelectorProps> = ({
 };
 
 const MiniBatchStatsMain = () => {
-  return <MiniBatch epochId={1} sampleId={0} />;
+  const [epochId, setEpochId] = useState<number>(1);
+  const [sampleId, setSampleId] = useState<number>(0);
+
+  const { data: allMiniBatchStatsList, error: allMiniBatchIdError } = useSWR(
+    `/api/minibatch_stats/`,
+    fetcher
+  );
+
+  if (allMiniBatchIdError) return <div>failed to load</div>;
+  if (!allMiniBatchStatsList) return <div>loading...</div>;
+
+  const { epochIdList, sampleIdList } = getEpochSampleIdList(
+    allMiniBatchStatsList
+  );
+
+  const onEpochIdSelectionChange = (keys: any) => {
+    setEpochId(keys);
+  };
+
+  const onSampleIdSelectionChange = (keys: any) => {
+    setSampleId(keys);
+  };
+
+  return (
+    <Grid.Container>
+      <Grid xs={12}>
+        <IdSelector
+          idDictList={epochIdList.map((epochId: number) => ({
+            key: epochId,
+            id: `epoch-${epochId}`,
+          }))}
+          selected={`epoch-${epochId}`}
+          onSelectionChange={onEpochIdSelectionChange}
+        />
+        <IdSelector
+          idDictList={sampleIdList.map((sampleId: number) => ({
+            key: sampleId,
+            id: `sample-${sampleId}`,
+          }))}
+          selected={`sample-${sampleId}`}
+          onSelectionChange={onSampleIdSelectionChange}
+        />
+      </Grid>
+      <Grid xs={12}>
+        <MiniBatch epochId={epochId} sampleId={sampleId} />
+      </Grid>
+    </Grid.Container>
+  );
 };
 
 export default MiniBatchStatsMain;
