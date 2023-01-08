@@ -1,16 +1,11 @@
-import Head from "next/head";
-import Image from "next/image";
-import { Inter } from "@next/font/google";
 import styles from "../styles/Home.module.css";
 
-const inter = Inter({ subsets: ["latin"] });
 import useSWR from "swr";
 
-import Link from "next/link";
 import { AllMiniBatchStats } from "../models/minibatchStats";
 import { Bar, Line } from "react-chartjs-2";
 import { Chart as ChartJS, registerables } from "chart.js";
-import { Grid, Spacer } from "@nextui-org/react";
+import { Grid, Navbar, Spacer } from "@nextui-org/react";
 ChartJS.register(...registerables);
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -188,6 +183,12 @@ const AllMiniBatchStats: React.FC = () => {
 const Home = () => {
   return (
     <>
+      <Navbar variant="sticky">
+        <Navbar.Content>
+          <Navbar.Link href="#">Home</Navbar.Link>
+          <Navbar.Link href="#">MiniBatch</Navbar.Link>
+        </Navbar.Content>
+      </Navbar>
       <AllMiniBatchStats />
     </>
   );

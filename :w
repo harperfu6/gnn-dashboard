@@ -1,0 +1,168 @@
+import { Key, useState } from "react";
+import { MyNodeObject } from "../../models/GraphData";
+import useSWR from "swr";
+import { AllMiniBatchStats } from "../../models/minibatchStats";
+import { Dropdown, Grid } from "@nextui-org/react";
+import GraphStats from "../../components/GraphStats";
+import NodeItem from "../../components/NodeItem";
+import MyForceGraph3D from "../../components/ForceGraph";
+
+const getEpochSampleIdList = (data: AllMiniBatchStats[]) => {
+  const miniBatchIdList = data.map(
+    (miniBatchStats: AllMiniBatchStats) => miniBatchStats.minibatch_id
+  );
+  const uniqueEpochIdList = Array.from(
+    new Set(
+      miniBatchIdList.map(
+        (miniBatchIdList: string) => miniBatchIdList.split("-")[0]
+      )
+    )
+  );
+  const uniqueSampleIdList = Array.from(
+    new Set(
+      miniBatchIdList.map(
+        (miniBatchIdList: string) => miniBatchIdList.split("-")[1]
+      )
+    )
+  );
+  const epochIdList = Array.from(
+    { length: uniqueEpochIdList.length },
+    (_, i) => `epoch-${i + 1}`
+  );
+  const sampleIdList = Array.from(
+    { length: uniqueSampleIdList.length },
+    (_, i) => `sample-${i}`
+  );
+  return { epochIdList: epochIdList, sampleIdList: sampleIdList };
+};
+
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
+type MiniBatchStatsProps = {
+  epochId: number;
+  sampleId: number;
+};
+
+const MiniBatchStats: React.FC<MiniBatchStatsProps> = ({
+  epochId,
+  sampleId,
+}) => {
+  const [selectedEpochId, setSelectedEpochId] = useState<string>(
+    epochId ? `epoch-${epochId}` : ""
+  );
+  const [selectedSampleId, setSelectedSampleId] = useState<string>(
+    `sample-${sampleId}`
+  );
+  const [selectedNodeObject, setSelectedNodeObject] = useState<MyNodeObject>();
+
+  const { data: allMiniBatchStatsList, error: allMiniBatchIdError } = useSWR(
+    `/api/minibatch_stats/`,
+    fetcher
+  );
+
+  const { data: graphData, error: graphDataError } = useSWR(
+    epochId ? `/api/graph/${epochId}/${sampleId}` : null,
+    fetcher
+  );
+
+  if (allMiniBatchIdError || graphDataError) return <div>failed to load</div>;
+  if (!allMiniBatchStatsList || !graphData) return <div>loading...</div>;
+
+  const { epochIdList, sampleIdList } = getEpochSampleIdList(
+    allMiniBatchStatsList
+  );
+
+  const onEpochIdSelectionChange = (keys: any) => {
+    setSelectedEpochId(keys);
+  };
+
+  return (
+    <>
+      <Grid.Container gap={2}>
+        <Grid xs={6}>
+          <EpochIdSelector
+            epochIdList={epochIdList.map((epochId: string) => ({
+              key: epochId,
+              epochId: epochId,
+            }))}
+            selected={selectedEpochId}
+            onSelectionChange={onEpochIdSelectionChange}
+          ></EpochIdSelector>
+        </Grid>
+        <Grid xs={6}>
+          <EpochIdSelector
+            epochIdList={epochIdList.map((epochId: string) => ({
+              key: epochId,
+              epochId: epochId,
+            }))}
+            selected={selectedEpochId}
+            onSelectionChange={onEpochIdSelectionChange}
+          ></EpochIdSelector>
+        </Grid>
+        <Grid xs={7}>
+          <GraphStats
+            graphData={graphData}
+            setSelectedNodeObject={setSelectedNodeObject}
+            epochId={epochId}
+            sampleId={sampleId}
+          />
+        </Grid>
+      </Grid.Container>
+    </>
+  );
+};
+        {/* <Grid xs={5}> */}
+        {/*   <Grid.Container gap={2}> */}
+        {/*     <Grid xs={12}> */}
+        {/*       <NodeItem */}
+        {/*         graphData={graphData} */}
+        {/*         setSelectedNodeObject={setSelectedNodeObject} */}
+        {/*       /> */}
+        {/*     </Grid> */}
+        {/*   </Grid.Container> */}
+        {/* </Grid> */}
+
+            {/* <Grid xs={12}> */}
+            {/*   <MyForceGraph3D */}
+            {/*     graphData={graphData} */}
+            {/*     selectedNodeObject={selectedNodeObject} */}
+            {/*   /> */}
+            {/* </Grid> */}
+
+type idDict = {
+  key: string;
+  id: string;
+};
+
+type IdSelectorProps = {
+  idDictList: idDict[];
+  selected: string;
+  onSelectionChange: (keys: Key) => void;
+};
+
+const EpochIdSelector: React.FC<IdSelectorProps> = ({
+	idDictList,
+  selected,
+  onSelectionChange,
+}) => {
+  return (
+    <Dropdown>
+      <Dropdown.Button flat>{selected}</Dropdown.Button>
+      <Dropdown.Menu
+        items={idDictList}
+        disallowEmptySelection
+        selectionMode="single"
+        selectedKeys={selected}
+        onAction={onSelectionChange}
+      >
+        {(item) => <Dropdown.Item key={item.key}>{item.epochId}</Dropdown.Item>}
+      </Dropdown.Menu>
+    </Dropdown>
+  );
+};
+
+const MiniBatchStatsMain = () => {
+  return <MiniBatchStats epochId={1} sampleId={0} />;
+};
+
+export default MiniBatchStatsMain;

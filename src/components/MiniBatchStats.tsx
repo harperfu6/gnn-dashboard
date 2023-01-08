@@ -1,9 +1,9 @@
-import { Dropdown, Grid } from "@nextui-org/react";
+import { Card, Dropdown, Grid, Spacer, Text } from "@nextui-org/react";
 import { Chart as ChartJS, registerables } from "chart.js";
 import { Bar } from "react-chartjs-2";
 import useSWR from "swr";
-import { MiniBatchStats } from "../../../models/minibatchStats";
 import { Key, useState } from "react";
+import { MiniBatchStatsType } from "../models/minibatchStats";
 ChartJS.register(...registerables);
 
 const binnig = (
@@ -34,7 +34,7 @@ const binnig = (
   return [binnigList, binnigRangeList];
 };
 
-const makeScoreData = (miniBatchStats: MiniBatchStats, etype: string) => {
+const makeScoreData = (miniBatchStats: MiniBatchStatsType, etype: string) => {
   const [posScoreBinnigList, binnigRangeList] = binnig(
     miniBatchStats.pos_score[etype],
     0,
@@ -65,30 +65,19 @@ const makeScoreData = (miniBatchStats: MiniBatchStats, etype: string) => {
   return scoreData;
 };
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
-
 type MiniBatchStatsProps = {
-  epochId: number;
-  sampleId: number;
+  miniBatchStats: MiniBatchStatsType;
 };
 
-const MiniBatchStats: React.FC<MiniBatchStatsProps> = ({
-  epochId,
-  sampleId,
-}) => {
-  // TODO: 初期値をuseSWRしてからいれるようにする
-  const [selectedEtype1, setSelectedEtype1] = useState<string>("app-user");
-  const [selectedEtype2, setSelectedEtype2] = useState<string>("app-user");
-  const [scoreData1, setScoreData1] = useState<object>();
-  const [scoreData2, setScoreData2] = useState<object>();
+const MiniBatchStats: React.FC<MiniBatchStatsProps> = ({ miniBatchStats }) => {
+  // TODO: miniBatchStatsから設定
+  const defalutEtype = "app-user";
+  const [selectedEtype1, setSelectedEtype1] = useState<string>(defalutEtype);
+  const [selectedEtype2, setSelectedEtype2] = useState<string>(defalutEtype);
 
-  const { data: miniBatchStats, error } = useSWR(
-    epochId ? `/api/minibatch_stats/${epochId}/${sampleId}` : null,
-    fetcher
-  );
-
-  if (error) return <div>failed to load</div>;
-  if (!miniBatchStats) return <div>loading...</div>;
+  const defalutScoreData = makeScoreData(miniBatchStats, defalutEtype);
+  const [scoreData1, setScoreData1] = useState<object>(defalutScoreData);
+  const [scoreData2, setScoreData2] = useState<object>(defalutScoreData);
 
   const loss = miniBatchStats.loss;
   const auc = miniBatchStats.auc;
@@ -97,16 +86,17 @@ const MiniBatchStats: React.FC<MiniBatchStatsProps> = ({
 
   const onSelectionChange1 = (keys: any) => {
     setSelectedEtype1(keys);
-    setScoreData1(makeScoreData(miniBatchStats, selectedEtype1));
+    setScoreData1(makeScoreData(miniBatchStats, keys));
   };
 
   const onSelectionChange2 = (keys: any) => {
     setSelectedEtype2(keys);
-    setScoreData2(makeScoreData(miniBatchStats, selectedEtype2));
+    setScoreData2(makeScoreData(miniBatchStats, keys));
   };
 
   const chartsOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: "top" as const,
@@ -121,34 +111,53 @@ const MiniBatchStats: React.FC<MiniBatchStatsProps> = ({
   return (
     <>
       <Grid.Container gap={2} justify="center">
-        <Grid xs={6} justify="center">
-          <EtypeSelector
-            etypeDictList={etypeList.map((etype: string) => ({
-              key: etype,
-              etype: etype,
-            }))}
-            selected={selectedEtype1}
-            onSelectionChange={onSelectionChange1}
-          />
-        </Grid>
-        <Grid xs={6} justify="center">
-          <EtypeSelector
-            etypeDictList={etypeList.map((etype: string) => ({
-              key: etype,
-              etype: etype,
-            }))}
-            selected={selectedEtype2}
-            onSelectionChange={onSelectionChange2}
-          />
-        </Grid>
-        <Grid xs={6}>
-          {scoreData1 && <Bar options={chartsOptions} data={scoreData1} />}
-        </Grid>
-        <Grid xs={6}>
-          {scoreData2 && <Bar options={chartsOptions} data={scoreData2} />}
-        </Grid>
-        <div>Loss: {loss}</div>
-        <div>AUC: {auc}</div>
+        <Grid.Container gap={2}>
+          <Grid xs={6}>
+            <Card css={{ h: "$20" }}>
+              <Card.Body>
+                <Text size={"20px"}>Loss: {loss}</Text>
+              </Card.Body>
+            </Card>
+          </Grid>
+          <Grid xs={6}>
+            <Card css={{ h: "$20" }}>
+              <Card.Body>
+                <Text size={"20px"}>AUC: {auc}</Text>
+              </Card.Body>
+            </Card>
+          </Grid>
+        </Grid.Container>
+        <Spacer y={2} />
+        <Grid.Container>
+          <Grid xs={6} justify="center">
+            <EtypeSelector
+              etypeDictList={etypeList.map((etype: string) => ({
+                key: etype,
+                etype: etype,
+              }))}
+              selected={selectedEtype1}
+              onSelectionChange={onSelectionChange1}
+            />
+          </Grid>
+          <Grid xs={6} justify="center">
+            <EtypeSelector
+              etypeDictList={etypeList.map((etype: string) => ({
+                key: etype,
+                etype: etype,
+              }))}
+              selected={selectedEtype2}
+              onSelectionChange={onSelectionChange2}
+            />
+          </Grid>
+        </Grid.Container>
+        <Grid.Container>
+          <Grid xs={6} css={{ w: "20vw", h: "20vw" }}>
+            <Bar options={chartsOptions} data={scoreData1} />
+          </Grid>
+          <Grid xs={6} css={{ w: "20vw", h: "20vw" }}>
+            <Bar options={chartsOptions} data={scoreData2} />
+          </Grid>
+        </Grid.Container>
       </Grid.Container>
     </>
   );

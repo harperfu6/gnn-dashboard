@@ -10,11 +10,11 @@ const numByEtype = (edges: MyLinkObject[], etype: string): number => {
   return edges.filter((myLink: MyLinkObject) => myLink.etype === etype).length;
 };
 
-type DescribeProps = {
+type NodeEdgeNumProps = {
   graphData: GraphData;
 };
 
-const Describe: React.FC<DescribeProps> = ({ graphData }) => {
+const NodeEdgeNum: React.FC<NodeEdgeNumProps> = ({ graphData }) => {
   const nodes = graphData.nodes;
   const links = graphData.links;
 
@@ -27,6 +27,7 @@ const Describe: React.FC<DescribeProps> = ({ graphData }) => {
   const nodeChartsOptions = {
     responsive: true,
     indexAxis: "y",
+		maintainAspectRatio: false,
     plugins: {
       legend: {
         position: "top" as const,
@@ -41,6 +42,7 @@ const Describe: React.FC<DescribeProps> = ({ graphData }) => {
   const edgeChartsOptions = {
     responsive: true,
     indexAxis: "y",
+		maintainAspectRatio: false,
     plugins: {
       legend: {
         position: "top" as const,
@@ -75,10 +77,10 @@ const Describe: React.FC<DescribeProps> = ({ graphData }) => {
   return (
     <>
       <Grid.Container>
-        <Grid xs={6}>
+        <Grid xs={6} css={{ w: "15vw", h: "20vw" }}>
           <Bar options={nodeChartsOptions} data={nodeChartsData} />
         </Grid>
-        <Grid xs={6}>
+        <Grid xs={6} css={{ w: "20vw", h: "20vw" }}>
           <Bar options={edgeChartsOptions} data={edgeChartsData} />
         </Grid>
       </Grid.Container>
@@ -86,4 +88,4 @@ const Describe: React.FC<DescribeProps> = ({ graphData }) => {
   );
 };
 
-export default Describe;
+export default NodeEdgeNum;

@@ -1,23 +1,22 @@
 # TODO
-- グラフ統計情報の表示
+- 全ミニバッチの統計情報
+	- ~~- ノード種別ごとのサンプリング回数ランキング~~
+	- ~~- lossの変化~~
+	- ~~- AUC/ACCの変化~~
+- 全ミニバッチと各ミニバッチの切り替え画面
+- 各ミニバッチ統計情報の表示
 	- ~~- ノード数/エッジ数~~
 	- ノード種別ごとの名称表示
 		- ~~- 表示数を減らす~~
 		- ~~- カラム名の除外~~
 		- ~~- 選択したノードの赤字表示~~
 		- 検索機能の追加
+	- ~~- 学習後のscore分布~~
 	- 2Dグラフにする？
-- 学習過程の表示
-	- ~~- score分布~~
+	- 特定のノードとkを指定したらkhop-in-subgraphを表示
+		- khop-in-subgraphの実装
 	- 特定ノードを指定したらノード種別ごとに近いノードランキングを表示
-- S3から取得
-- 全サンプリングの統計情報
-	- エポック数/サンプリング数
-	- ノード種別ごとのサンプリング回数ランキング
-	- lossの変化
-	- AUC/ACCの変化
-- 特定のノードとkを指定したらkhop-in-subgraphを表示
-	- khop-in-subgraphの実装
+- GNNデータをS3から取得
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
