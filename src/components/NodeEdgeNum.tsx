@@ -34,7 +34,7 @@ const NodeEdgeNum: React.FC<NodeEdgeNumProps> = ({ graphData }) => {
       },
       title: {
         display: true,
-        text: `count by node type (all num: ${nodeNum})`,
+        text: `sampled num by node type (all num: ${nodeNum})`,
       },
     },
   };
@@ -49,7 +49,7 @@ const NodeEdgeNum: React.FC<NodeEdgeNumProps> = ({ graphData }) => {
       },
       title: {
         display: true,
-        text: `count by node type (all num: ${linkNum})`,
+        text: `sampled num by edge type (all num: ${linkNum})`,
       },
     },
   };

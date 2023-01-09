@@ -127,7 +127,7 @@ const MiniBatchStats: React.FC<MiniBatchStatsProps> = ({ miniBatchStats }) => {
             </Card>
           </Grid>
         </Grid.Container>
-        <Spacer y={2} />
+        <Spacer y={1} />
         <Grid.Container>
           <Grid xs={6} justify="center">
             <EtypeSelector

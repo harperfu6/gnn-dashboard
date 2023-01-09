@@ -5,7 +5,9 @@ import useSWR from "swr";
 import { AllMiniBatchStats } from "../models/minibatchStats";
 import { Bar, Line } from "react-chartjs-2";
 import { Chart as ChartJS, registerables } from "chart.js";
-import { Grid, Navbar, Spacer } from "@nextui-org/react";
+import { Grid, Spacer, Text } from "@nextui-org/react";
+import MyNavbar from "../components/Nav";
+import { getEpochSampleIdList } from "../utils";
 ChartJS.register(...registerables);
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -33,17 +35,32 @@ const appendDict = (
   return dict1;
 };
 
-const makePosSampledNumDict = (data: AllMiniBatchStats[]) => {
+const makeSampledNumDict = (data: AllMiniBatchStats[], posNeg: string) => {
   return data.reduce(
     (acc: { [node: string]: number }, current: AllMiniBatchStats) =>
-      appendDict(acc, current.sampled_num["pos"]),
+      appendDict(acc, current.sampled_num[posNeg]),
     {}
   );
 };
 
-const makeLineData = (dataList: number[], label: string) => {
+const makeLineData = (
+  dataList: number[],
+  label: string,
+  epochIdList: number[],
+  sampleIdList: number[]
+) => {
+  const epochIdListLength = epochIdList.length;
+  const sampleIdListLength = sampleIdList.length;
+  const labelList = Array.from(
+    { length: epochIdListLength * sampleIdListLength },
+    (_, i) =>
+      `epoch-${Math.floor(i / sampleIdListLength) + 1}/sample-${
+        i % sampleIdListLength
+      }`
+  );
+  console.log(labelList);
   return {
-    labels: Array.from({ length: dataList.length }, (_, i) => i),
+    labels: labelList,
     datasets: [
       {
         label: label,
@@ -96,15 +113,29 @@ const AllMiniBatchStats: React.FC = () => {
   if (error) return <div>failed to load</div>;
   if (!allMiniBatchStatsList) return <div>loading...</div>;
 
+  const { epochIdList, sampleIdList } = getEpochSampleIdList(
+    allMiniBatchStatsList
+  );
+
   const lossList: number[] = makeLossList(allMiniBatchStatsList);
   const aucList: number[] = makeAucList(allMiniBatchStatsList);
-  const posSampledNumDict: { [node: string]: number } = makePosSampledNumDict(
-    allMiniBatchStatsList
+  const posSampledNumDict: { [node: string]: number } = makeSampledNumDict(
+    allMiniBatchStatsList,
+    "pos"
+  );
+  const negSampledNumDict: { [node: string]: number } = makeSampledNumDict(
+    allMiniBatchStatsList,
+    "neg"
   );
   const ntypeList = getNtypeList(posSampledNumDict);
 
   const lossOptions = {
     responsive: true,
+    scales: {
+      x: {
+        display: false,
+      },
+    },
     plugins: {
       legend: {
         position: "top" as const,
@@ -123,6 +154,9 @@ const AllMiniBatchStats: React.FC = () => {
         suggestedMin: 0,
         suggestedMax: 1.0,
       },
+      x: {
+        display: false,
+      },
     },
     plugins: {
       legend: {
@@ -130,7 +164,7 @@ const AllMiniBatchStats: React.FC = () => {
       },
       title: {
         display: false,
-        text: "loss",
+        text: "auc",
       },
     },
   };
@@ -150,31 +184,59 @@ const AllMiniBatchStats: React.FC = () => {
     },
   };
 
-  const lossData = makeLineData(lossList, "loss");
-  const aucData = makeLineData(aucList, "auc");
+  const lossData = makeLineData(lossList, "loss", epochIdList, sampleIdList);
+  const aucData = makeLineData(aucList, "auc", epochIdList, sampleIdList);
 
   return (
     <>
-      <Grid.Container>
-        <Grid xs={6}>
+      <Grid.Container justify="center">
+        <Grid xs={5} justify="center">
           <Line options={lossOptions} data={lossData} />
         </Grid>
-        <Grid xs={6}>
+        <Spacer x={5} />
+        <Grid xs={5} justify="center">
           <Line options={aucOptions} data={aucData} />
         </Grid>
       </Grid.Container>
       <Spacer y={3} />
       <Grid.Container>
-        {ntypeList &&
-          ntypeList.map((ntype: string) => {
-            const data = makeBarDataByNtype(posSampledNumDict, ntype);
-						const vw = Math.ceil(100 / ntypeList.length) - 1;
-            return (
-              <Grid key={ntype} css={{ w: `${vw}vw`, h: `${vw * 1.5}vw` }}>
-                <Bar options={barOptions} data={data} />
-              </Grid>
-            );
-          })}
+        <Grid xs={6}>
+          <Grid.Container justify="center">
+            <Grid xs={12} justify="center">
+              <Text>positive</Text>
+            </Grid>
+            {ntypeList &&
+              ntypeList.map((ntype: string) => {
+                const data = makeBarDataByNtype(posSampledNumDict, ntype);
+                const vw = Math.floor(100 / ntypeList.length);
+                return (
+                  <Grid
+                    key={ntype}
+                    css={{ w: `${vw}vw`, h: `${vw * 1.5}vw` }}
+                  >
+                    <Bar options={barOptions} data={data} />
+                  </Grid>
+                );
+              })}
+          </Grid.Container>
+        </Grid>
+        <Grid xs={6}>
+          <Grid.Container justify="center">
+            <Grid xs={12} justify="center">
+              <Text>negative</Text>
+            </Grid>
+            {ntypeList &&
+              ntypeList.map((ntype: string) => {
+                const data = makeBarDataByNtype(negSampledNumDict, ntype);
+                const vw = Math.floor(100 / ntypeList.length);
+                return (
+                  <Grid key={ntype} css={{ w: `${vw}vw`, h: `${vw * 1.5}vw` }}>
+                    <Bar options={barOptions} data={data} />
+                  </Grid>
+                );
+              })}
+          </Grid.Container>
+        </Grid>
       </Grid.Container>
     </>
   );
@@ -183,19 +245,10 @@ const AllMiniBatchStats: React.FC = () => {
 const Home = () => {
   return (
     <>
-      <Navbar variant="sticky">
-        <Navbar.Content>
-          <Navbar.Link href="#">Home</Navbar.Link>
-          <Navbar.Link href="#">MiniBatch</Navbar.Link>
-        </Navbar.Content>
-      </Navbar>
+      <MyNavbar />
       <AllMiniBatchStats />
     </>
   );
 };
-
-{
-  /* <Link href="/graph/1/0">Go</Link> */
-}
 
 export default Home;

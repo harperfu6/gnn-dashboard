@@ -4,39 +4,12 @@ import { Dropdown, Grid } from "@nextui-org/react";
 import NodeEdgeNum from "../../components/NodeEdgeNum";
 
 import { Chart as ChartJS, registerables } from "chart.js";
-import { AllMiniBatchStatsType } from "../../models/MiniBatchData";
 import MiniBatchStats from "../../components/MiniBatchStats";
 import Graph from "../graph";
+import MyNavbar from "../../components/Nav";
+import {getEpochSampleIdList} from "../../utils";
 ChartJS.register(...registerables);
 
-const getEpochSampleIdList = (data: AllMiniBatchStatsType[]) => {
-  const miniBatchIdList = data.map(
-    (miniBatchStats: AllMiniBatchStatsType) => miniBatchStats.minibatch_id
-  );
-  const uniqueEpochIdList = Array.from(
-    new Set(
-      miniBatchIdList.map(
-        (miniBatchIdList: string) => miniBatchIdList.split("-")[0]
-      )
-    )
-  );
-  const uniqueSampleIdList = Array.from(
-    new Set(
-      miniBatchIdList.map(
-        (miniBatchIdList: string) => miniBatchIdList.split("-")[1]
-      )
-    )
-  );
-  const epochIdList = Array.from(
-    { length: uniqueEpochIdList.length },
-    (_, i) => i + 1
-  );
-  const sampleIdList = Array.from(
-    { length: uniqueSampleIdList.length },
-    (_, i) => i
-  );
-  return { epochIdList: epochIdList, sampleIdList: sampleIdList };
-};
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -63,7 +36,7 @@ const MiniBatch: React.FC<MiniBatchStatsProps> = ({ epochId, sampleId }) => {
   return (
     <>
       <Grid.Container>
-        <Grid xs={6}>
+        <Grid xs={6} css={{padding: '20px'}}>
           <Grid.Container>
             <Grid xs={12}>
               <MiniBatchStats miniBatchStats={miniBatchStats} />
@@ -73,7 +46,7 @@ const MiniBatch: React.FC<MiniBatchStatsProps> = ({ epochId, sampleId }) => {
             </Grid>
           </Grid.Container>
         </Grid>
-        <Grid xs={6}>
+        <Grid xs={6} css={{padding: '20px'}}>
           <Graph graphData={graphData} />
         </Grid>
       </Grid.Container>
@@ -138,29 +111,32 @@ const MiniBatchStatsMain = () => {
   };
 
   return (
-    <Grid.Container>
-      <Grid xs={12}>
-        <IdSelector
-          idDictList={epochIdList.map((epochId: number) => ({
-            key: epochId,
-            id: `epoch-${epochId}`,
-          }))}
-          selected={`epoch-${epochId}`}
-          onSelectionChange={onEpochIdSelectionChange}
-        />
-        <IdSelector
-          idDictList={sampleIdList.map((sampleId: number) => ({
-            key: sampleId,
-            id: `sample-${sampleId}`,
-          }))}
-          selected={`sample-${sampleId}`}
-          onSelectionChange={onSampleIdSelectionChange}
-        />
-      </Grid>
-      <Grid xs={12}>
-        <MiniBatch epochId={epochId} sampleId={sampleId} />
-      </Grid>
-    </Grid.Container>
+    <>
+      <MyNavbar />
+      <Grid.Container>
+        <Grid xs={12}>
+          <IdSelector
+            idDictList={epochIdList.map((epochId: number) => ({
+              key: epochId,
+              id: `epoch-${epochId}`,
+            }))}
+            selected={`epoch-${epochId}`}
+            onSelectionChange={onEpochIdSelectionChange}
+          />
+          <IdSelector
+            idDictList={sampleIdList.map((sampleId: number) => ({
+              key: sampleId,
+              id: `sample-${sampleId}`,
+            }))}
+            selected={`sample-${sampleId}`}
+            onSelectionChange={onSampleIdSelectionChange}
+          />
+        </Grid>
+        <Grid xs={12}>
+          <MiniBatch epochId={epochId} sampleId={sampleId} />
+        </Grid>
+      </Grid.Container>
+    </>
   );
 };
 
