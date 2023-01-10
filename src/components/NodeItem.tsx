@@ -35,27 +35,29 @@ type NodeItemProps = {
   setSelectedNodeObject: (myNodeObject: MyNodeObject) => void;
 };
 
-const NodeItem = (props: NodeItemProps) => {
-  const graphData = props.graphData;
+const NodeItem: React.FC<NodeItemProps> = ({
+  graphData,
+  setSelectedNodeObject,
+}) => {
   const ntypeList = graphData.ntype;
 
   // node type button
   const [selectedNtype, setSelectedNtype] = useState<string>(ntypeList[0]);
+  // node item button
+  const [selectedNodeObjectId, setSelectedNodeObjectId] = useState<string>("");
+  const nodeItemDict = sortNodeItemDict(getNodeObjectDict(graphData));
+  const [targetNodeItemList, setTargetNodeItemList] = useState<MyNodeObject[]>(
+    nodeItemDict[ntypeList[0]]
+  );
 
   const onNodeTypeClicked = (selectedNtype: string) => {
-    setSelectedNtype(selectedNtype);
+    setSelectedNtype(selectedNtype); // 強調表示用
+    setTargetNodeItemList(nodeItemDict[selectedNtype]); // リスト表示用
   };
 
-  // node item button
-  const nodeItemDict = sortNodeItemDict(getNodeObjectDict(graphData));
-  const [selectedNodeObjectId, setSelectedNodeObjectId] = useState<string>("");
-
-  const onNodeItemClicked = (
-    selectedNtype: string,
-    selectedNodeItem: MyNodeObject
-  ) => {
-    setSelectedNodeObjectId(selectedNodeItem.id);
-    props.setSelectedNodeObject(selectedNodeItem);
+  const onNodeItemClicked = (selectedNodeItem: MyNodeObject) => {
+    setSelectedNodeObjectId(selectedNodeItem.id); // 強調表示用
+    setSelectedNodeObject(selectedNodeItem); // Graphとの連携用
   };
 
   return (
@@ -94,14 +96,14 @@ const NodeItem = (props: NodeItemProps) => {
             overflow: "scroll",
           }}
         >
-          {nodeItemDict[selectedNtype].map((nodeItem: ButtonNodeObject) => {
+          {targetNodeItemList.map((nodeItem: MyNodeObject) => {
             if (nodeItem.id === selectedNodeObjectId) {
               return (
                 <NodeItemButton
                   key={nodeItem.id}
                   size="basic"
                   color="selected"
-                  onPress={() => onNodeItemClicked(selectedNtype, nodeItem)}
+                  onPress={() => onNodeItemClicked(nodeItem)}
                 >
                   {nodeItem.id}
                 </NodeItemButton>
@@ -112,7 +114,7 @@ const NodeItem = (props: NodeItemProps) => {
                   key={nodeItem.id}
                   size="basic"
                   color="basic"
-                  onPress={() => onNodeItemClicked(selectedNtype, nodeItem)}
+                  onPress={() => onNodeItemClicked(nodeItem)}
                 >
                   {nodeItem.id}
                 </NodeItemButton>

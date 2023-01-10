@@ -22,8 +22,8 @@ type MyForceGraph3DProps = {
 };
 
 const MyForceGraph3D = (props: MyForceGraph3DProps) => {
-  const viewWidth = 1000;
-  const viewHeight = 1000;
+  const viewWidth = 700;
+  const viewHeight = 500;
 
   const linkWidth = (link: MyLinkObject): number => {
     return link.value * 2;
@@ -73,10 +73,7 @@ const MyForceGraph3D = (props: MyForceGraph3DProps) => {
   {/*     nodeThreeObject={nodeThreeObject} */}
   {/*   /> */}
   {/* ); */}
-	return (
-    <ForceGraph3D
-    />
-	)
+	return (<ForceGraph3D width={viewWidth} height={viewHeight}/>)
 };
 
 MyForceGraph3D.defaultProps = {
@@ -86,7 +83,7 @@ MyForceGraph3D.defaultProps = {
   linkDirectionalArrowRelPos: 1, // 有向グラフの矢印の位置
   linkCurvature: 0.25, // エッジのカーブ（主に双方向グラフで使用）
   enableNodeDrag: false, // ノードをドラッグで動かせるようにするか
-  linkWidth: 1,
+  linkWidth: 3,
   nodeThreeObject: () => {
     const nodeEl = document.createElement("div");
     return new CSS2DObject(nodeEl);

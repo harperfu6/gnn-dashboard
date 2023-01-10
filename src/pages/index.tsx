@@ -2,22 +2,24 @@ import styles from "../styles/Home.module.css";
 
 import useSWR from "swr";
 
-import { AllMiniBatchStats } from "../models/minibatchStats";
 import { Bar, Line } from "react-chartjs-2";
 import { Chart as ChartJS, registerables } from "chart.js";
 import { Grid, Spacer, Text } from "@nextui-org/react";
 import MyNavbar from "../components/Nav";
 import { getEpochSampleIdList } from "../utils";
+import { ExexuteIdContext } from "../context";
+import { useContext, useState } from "react";
+import {AllMiniBatchStatsType} from "../models/MiniBatchData";
 ChartJS.register(...registerables);
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-const makeLossList = (data: AllMiniBatchStats[]) => {
-  return data.map((mbd: AllMiniBatchStats) => mbd.loss);
+const makeLossList = (data: AllMiniBatchStatsType[]) => {
+  return data.map((mbd: AllMiniBatchStatsType) => mbd.loss);
 };
 
-const makeAucList = (data: AllMiniBatchStats[]) => {
-  return data.map((mbd: AllMiniBatchStats) => mbd.auc);
+const makeAucList = (data: AllMiniBatchStatsType[]) => {
+  return data.map((mbd: AllMiniBatchStatsType) => mbd.auc);
 };
 
 const appendDict = (
@@ -35,9 +37,9 @@ const appendDict = (
   return dict1;
 };
 
-const makeSampledNumDict = (data: AllMiniBatchStats[], posNeg: string) => {
+const makeSampledNumDict = (data: AllMiniBatchStatsType[], posNeg: string) => {
   return data.reduce(
-    (acc: { [node: string]: number }, current: AllMiniBatchStats) =>
+    (acc: { [node: string]: number }, current: AllMiniBatchStatsType) =>
       appendDict(acc, current.sampled_num[posNeg]),
     {}
   );
@@ -105,8 +107,11 @@ const makeBarDataByNtype = (
 };
 
 const AllMiniBatchStats: React.FC = () => {
+  const executeId = useContext(ExexuteIdContext);
+	console.log(executeId)
+
   const { data: allMiniBatchStatsList, error } = useSWR(
-    `/api/minibatch_stats/`,
+    `/api/minibatch_stats/${executeId}`,
     fetcher
   );
 
@@ -210,10 +215,7 @@ const AllMiniBatchStats: React.FC = () => {
                 const data = makeBarDataByNtype(posSampledNumDict, ntype);
                 const vw = Math.floor(100 / ntypeList.length);
                 return (
-                  <Grid
-                    key={ntype}
-                    css={{ w: `${vw}vw`, h: `${vw * 1.5}vw` }}
-                  >
+                  <Grid key={ntype} css={{ w: `${vw}vw`, h: `${vw * 1.5}vw` }}>
                     <Bar options={barOptions} data={data} />
                   </Grid>
                 );
@@ -243,10 +245,26 @@ const AllMiniBatchStats: React.FC = () => {
 };
 
 const Home = () => {
+  const { data: executeIdList, error } = useSWR(
+    `/api/execute-id-list/`,
+    fetcher
+  );
+	// TODO: get from data
+  const [executeId, setExecuteId] = useState<string>("dummy_data");
+
+  if (!executeIdList) return <div>loading executeId list</div>;
+  const defaultExecuteId = executeIdList[0];
+
   return (
     <>
-      <MyNavbar />
-      <AllMiniBatchStats />
+      <ExexuteIdContext.Provider value={executeId}>
+        <MyNavbar
+          executeIdList={executeIdList}
+          executeId={defaultExecuteId}
+          setExecuteId={setExecuteId}
+        />
+        <AllMiniBatchStats />
+      </ExexuteIdContext.Provider>
     </>
   );
 };

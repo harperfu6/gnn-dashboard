@@ -30,6 +30,12 @@ const Graph: React.FC<GraphProps> = ({ graphData }) => {
                 setSelectedNodeObject={setSelectedNodeObject}
               />
             </Grid>
+            <Grid xs={10}>
+              <MyForceGraph3D
+                graphData={graphData}
+                selectedNodeObject={selectedNodeObject}
+              />
+            </Grid>
           </Grid.Container>
         </Grid>
       </Grid.Container>
@@ -37,11 +43,5 @@ const Graph: React.FC<GraphProps> = ({ graphData }) => {
   );
 };
 
-            {/* <Grid xs={12}> */}
-            {/*   <MyForceGraph3D */}
-            {/*     graphData={graphData} */}
-            {/*     selectedNodeObject={selectedNodeObject} */}
-            {/*   /> */}
-            {/* </Grid> */}
 
 export default Graph;

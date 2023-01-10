@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import path from "path";
 import { promises as fs } from "fs";
-import {AllMiniBatchStatsType} from "../../../models/MiniBatchData";
+import {AllMiniBatchStatsType} from "../../../../models/MiniBatchData";
 
 const handler = async (
   req: NextApiRequest,
