@@ -1,5 +1,7 @@
 import {AllMiniBatchStatsType} from "../models/MiniBatchData";
 
+export const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
 export const getEpochSampleIdList = (data: AllMiniBatchStatsType[]) => {
   const miniBatchIdList = data.map(
     (miniBatchStats: AllMiniBatchStatsType) => miniBatchStats.minibatch_id

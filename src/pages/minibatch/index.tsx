@@ -20,7 +20,7 @@ type MiniBatchStatsProps = {
 
 // useRouterで取得したepochIdとsampleIdをuseStateに初期値として設定できなかったのでpropsとして渡す
 const MiniBatch: React.FC<MiniBatchStatsProps> = ({ epochId, sampleId }) => {
-  const executeId = useContext(ExexuteIdContext);
+  const {executeId, setExecuteId} = useContext(ExexuteIdContext);
 
   const { data: graphData, error: graphDataError } = useSWR(
     epochId ? `/api/graph/${executeId}/${epochId}/${sampleId}` : null,
@@ -89,8 +89,7 @@ const IdSelector: React.FC<IdSelectorProps> = ({
 };
 
 const MiniBatchStatsMain = () => {
-  {/* const executeId = useContext(ExexuteIdContext); */}
-	const executeId = "dummy_data"
+  const { executeId, setExecuteId } = useContext(ExexuteIdContext);
 
   const [epochId, setEpochId] = useState<number>(1);
   const [sampleId, setSampleId] = useState<number>(0);
@@ -100,7 +99,7 @@ const MiniBatchStatsMain = () => {
     fetcher
   );
 
-  if (allMiniBatchIdError) return <div>failed to load</div>;
+  if (allMiniBatchIdError) return <div>failed to load minibatch_stats</div>;
   if (!allMiniBatchStatsList) return <div>loading...</div>;
 
   const { epochIdList, sampleIdList } = getEpochSampleIdList(
@@ -117,34 +116,44 @@ const MiniBatchStatsMain = () => {
 
   return (
     <>
-      <ExexuteIdContext.Provider value={executeId}>
-				<MyNavbar executeId="" executeIdList={[]} setExecuteId={()=>{}}/>
-        <Grid.Container>
-          <Grid xs={12}>
-            <IdSelector
-              idDictList={epochIdList.map((epochId: number) => ({
-                key: epochId,
-                id: `epoch-${epochId}`,
-              }))}
-              selected={`epoch-${epochId}`}
-              onSelectionChange={onEpochIdSelectionChange}
-            />
-            <IdSelector
-              idDictList={sampleIdList.map((sampleId: number) => ({
-                key: sampleId,
-                id: `sample-${sampleId}`,
-              }))}
-              selected={`sample-${sampleId}`}
-              onSelectionChange={onSampleIdSelectionChange}
-            />
-          </Grid>
-          <Grid xs={12}>
-            <MiniBatch epochId={epochId} sampleId={sampleId} />
-          </Grid>
-        </Grid.Container>
-      </ExexuteIdContext.Provider>
+      <Grid.Container>
+        <Grid xs={12}>
+          <IdSelector
+            idDictList={epochIdList.map((epochId: number) => ({
+              key: epochId,
+              id: `epoch-${epochId}`,
+            }))}
+            selected={`epoch-${epochId}`}
+            onSelectionChange={onEpochIdSelectionChange}
+          />
+          <IdSelector
+            idDictList={sampleIdList.map((sampleId: number) => ({
+              key: sampleId,
+              id: `sample-${sampleId}`,
+            }))}
+            selected={`sample-${sampleId}`}
+            onSelectionChange={onSampleIdSelectionChange}
+          />
+        </Grid>
+        <Grid xs={12}>
+          <MiniBatch epochId={epochId} sampleId={sampleId} />
+        </Grid>
+      </Grid.Container>
     </>
   );
 };
 
-export default MiniBatchStatsMain;
+// TODO: NEED TO REFACTORING!!!
+const MiniBatchStatsEntry = () => {
+
+  const { executeId, setExecuteId } = useContext(ExexuteIdContext);
+
+  return (
+    <>
+      <MyNavbar executeId={executeId} setExecuteId={setExecuteId} />
+      <MiniBatchStatsMain />
+    </>
+  );
+}
+
+export default MiniBatchStatsEntry;

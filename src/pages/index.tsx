@@ -6,13 +6,11 @@ import { Bar, Line } from "react-chartjs-2";
 import { Chart as ChartJS, registerables } from "chart.js";
 import { Grid, Spacer, Text } from "@nextui-org/react";
 import MyNavbar from "../components/Nav";
-import { getEpochSampleIdList } from "../utils";
-import { ExexuteIdContext } from "../context";
+import { fetcher, getEpochSampleIdList } from "../utils";
 import { useContext, useState } from "react";
-import {AllMiniBatchStatsType} from "../models/MiniBatchData";
+import { AllMiniBatchStatsType } from "../models/MiniBatchData";
+import { ExexuteIdContext } from "../context";
 ChartJS.register(...registerables);
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 const makeLossList = (data: AllMiniBatchStatsType[]) => {
   return data.map((mbd: AllMiniBatchStatsType) => mbd.loss);
@@ -60,7 +58,6 @@ const makeLineData = (
         i % sampleIdListLength
       }`
   );
-  console.log(labelList);
   return {
     labels: labelList,
     datasets: [
@@ -107,8 +104,7 @@ const makeBarDataByNtype = (
 };
 
 const AllMiniBatchStats: React.FC = () => {
-  const executeId = useContext(ExexuteIdContext);
-	console.log(executeId)
+  const { executeId, setExecuteId } = useContext(ExexuteIdContext);
 
   const { data: allMiniBatchStatsList, error } = useSWR(
     `/api/minibatch_stats/${executeId}`,
@@ -245,26 +241,12 @@ const AllMiniBatchStats: React.FC = () => {
 };
 
 const Home = () => {
-  const { data: executeIdList, error } = useSWR(
-    `/api/execute-id-list/`,
-    fetcher
-  );
-	// TODO: get from data
-  const [executeId, setExecuteId] = useState<string>("dummy_data");
-
-  if (!executeIdList) return <div>loading executeId list</div>;
-  const defaultExecuteId = executeIdList[0];
+  const { executeId, setExecuteId } = useContext(ExexuteIdContext);
 
   return (
     <>
-      <ExexuteIdContext.Provider value={executeId}>
-        <MyNavbar
-          executeIdList={executeIdList}
-          executeId={defaultExecuteId}
-          setExecuteId={setExecuteId}
-        />
-        <AllMiniBatchStats />
-      </ExexuteIdContext.Provider>
+      <MyNavbar executeId={executeId} setExecuteId={setExecuteId} />
+      <AllMiniBatchStats />
     </>
   );
 };

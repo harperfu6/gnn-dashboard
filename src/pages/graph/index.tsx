@@ -1,7 +1,5 @@
-import { useRouter } from "next/router";
-import useSWR from "swr";
 import dynamic from "next/dynamic";
-import { GraphData, MyLinkObject, MyNodeObject } from "../../models/GraphData";
+import { GraphData, MyNodeObject } from "../../models/GraphData";
 import { Grid } from "@nextui-org/react";
 import { useState } from "react";
 import NodeItem from "../../components/NodeItem";
