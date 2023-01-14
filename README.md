@@ -1,16 +1,19 @@
 # TODO
+- グラフデータを使わない場合、グラフに含まれるノード数とエッジ数のJSONファイルをminibatch_stats.jsonに入れる
 - 全ミニバッチの統計情報
 	- サンプリング数のtopkを指定可能にする
 - 各ミニバッチ統計情報の表示
+	- エッジ名称とスコア一覧
 	- ノード種別ごとの名称表示
 		- 検索機能の追加
-	- グラフ表示
+	- (グラフ表示) <- グラフ情報自体があまり有用でなさそうなので一旦保留
 		- APIを正例・負例両方取得できるようにする
 		- 2Dグラフにする？
 		- 特定のノードとkを指定したらkhop-in-subgraphを表示
 			- khop-in-subgraphの実装
 - 特定ノードを指定したらノード種別ごとに近いノードランキングを表示
 - GNNデータをS3から取得
+
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 

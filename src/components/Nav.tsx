@@ -49,9 +49,7 @@ const MyNavbar: React.FC<MyNavbarProps> = ({ executeId, setExecuteId }) => {
   if (error) return <div>failed to load</div>;
   if (!executeIdList) return <div>loading...</div>;
 
-	console.log(executeId)
   if (executeId === "") {
-		console.log('aaa')
     setExecuteId(executeIdList[0]);
   }
 

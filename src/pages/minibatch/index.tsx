@@ -9,6 +9,7 @@ import Graph from "../graph";
 import MyNavbar from "../../components/Nav";
 import { getEpochSampleIdList } from "../../utils";
 import { ExexuteIdContext } from "../../context";
+import EdgeScore from "../edge";
 ChartJS.register(...registerables);
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -49,7 +50,7 @@ const MiniBatch: React.FC<MiniBatchStatsProps> = ({ epochId, sampleId }) => {
           </Grid.Container>
         </Grid>
         <Grid xs={6} css={{ padding: "20px" }}>
-          <Graph graphData={graphData} />
+					<EdgeScore graphData={graphData} miniBatchStats={miniBatchStats} />
         </Grid>
       </Grid.Container>
     </>

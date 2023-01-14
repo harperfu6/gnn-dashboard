@@ -27,7 +27,7 @@ const NodeEdgeNum: React.FC<NodeEdgeNumProps> = ({ graphData }) => {
   const nodeChartsOptions = {
     responsive: true,
     indexAxis: "y",
-		maintainAspectRatio: false,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: "top" as const,
@@ -42,7 +42,7 @@ const NodeEdgeNum: React.FC<NodeEdgeNumProps> = ({ graphData }) => {
   const edgeChartsOptions = {
     responsive: true,
     indexAxis: "y",
-		maintainAspectRatio: false,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: "top" as const,

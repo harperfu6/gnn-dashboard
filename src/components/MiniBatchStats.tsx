@@ -1,9 +1,8 @@
 import { Card, Dropdown, Grid, Spacer, Text } from "@nextui-org/react";
 import { Chart as ChartJS, registerables } from "chart.js";
 import { Bar } from "react-chartjs-2";
-import useSWR from "swr";
 import { Key, useState } from "react";
-import { MiniBatchStatsType } from "../models/minibatchStats";
+import { MiniBatchStatsType } from "../models/MiniBatchData";
 ChartJS.register(...registerables);
 
 const binnig = (
@@ -36,13 +35,13 @@ const binnig = (
 
 const makeScoreData = (miniBatchStats: MiniBatchStatsType, etype: string) => {
   const [posScoreBinnigList, binnigRangeList] = binnig(
-    miniBatchStats.pos_score[etype],
+    miniBatchStats.pos_score[etype].score,
     0,
     1,
     0.1
   );
   const [negScoreBinnigList, _] = binnig(
-    miniBatchStats.neg_score[etype],
+    miniBatchStats.neg_score[etype].score,
     0,
     1,
     0.1
