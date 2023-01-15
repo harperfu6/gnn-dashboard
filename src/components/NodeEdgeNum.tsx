@@ -60,6 +60,7 @@ const NodeEdgeNum: React.FC<NodeEdgeNumProps> = ({ graphData }) => {
       {
         label: "count",
         data: ntypeList.map((ntype: string) => numByNtype(nodes, ntype)),
+        backgroundColor: "rgba(75, 192, 192, 0.8)",
       },
     ],
   };
@@ -70,6 +71,7 @@ const NodeEdgeNum: React.FC<NodeEdgeNumProps> = ({ graphData }) => {
       {
         label: "count",
         data: etypeList.map((etype: string) => numByEtype(links, etype)),
+        backgroundColor: "rgba(75, 192, 192, 0.8)",
       },
     ],
   };

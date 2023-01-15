@@ -21,7 +21,7 @@ type MiniBatchStatsProps = {
 
 // useRouterで取得したepochIdとsampleIdをuseStateに初期値として設定できなかったのでpropsとして渡す
 const MiniBatch: React.FC<MiniBatchStatsProps> = ({ epochId, sampleId }) => {
-  const {executeId, setExecuteId} = useContext(ExexuteIdContext);
+  const { executeId, setExecuteId } = useContext(ExexuteIdContext);
 
   const { data: graphData, error: graphDataError } = useSWR(
     epochId ? `/api/graph/${executeId}/${epochId}/${sampleId}` : null,
@@ -50,7 +50,7 @@ const MiniBatch: React.FC<MiniBatchStatsProps> = ({ epochId, sampleId }) => {
           </Grid.Container>
         </Grid>
         <Grid xs={6} css={{ padding: "20px" }}>
-					<EdgeScore graphData={graphData} miniBatchStats={miniBatchStats} />
+          <EdgeScore graphData={graphData} miniBatchStats={miniBatchStats} />
         </Grid>
       </Grid.Container>
     </>
@@ -146,7 +146,6 @@ const MiniBatchStatsMain = () => {
 
 // TODO: NEED TO REFACTORING!!!
 const MiniBatchStatsEntry = () => {
-
   const { executeId, setExecuteId } = useContext(ExexuteIdContext);
 
   return (
@@ -155,6 +154,6 @@ const MiniBatchStatsEntry = () => {
       <MiniBatchStatsMain />
     </>
   );
-}
+};
 
 export default MiniBatchStatsEntry;

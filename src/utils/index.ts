@@ -1,4 +1,4 @@
-import {AllMiniBatchStatsType} from "../models/MiniBatchData";
+import {AllMiniBatchStatsType, MiniBatchScoreType, MiniBatchStatsType} from "../models/MiniBatchData";
 
 export const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -29,4 +29,8 @@ export const getEpochSampleIdList = (data: AllMiniBatchStatsType[]) => {
     (_, i) => i
   );
   return { epochIdList: epochIdList, sampleIdList: sampleIdList };
+};
+
+export const getEtypeList = (miniBatchStats: MiniBatchStatsType): string[] => {
+  return miniBatchStats.score.map((score: MiniBatchScoreType) => score.etype);
 };

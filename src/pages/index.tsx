@@ -64,6 +64,7 @@ const makeLineData = (
       {
         label: label,
         data: dataList,
+        backgroundColor: "rgba(75, 192, 192, 0.8)",
       },
     ],
   };
@@ -78,6 +79,7 @@ const getNtypeList = (sampledNumDict: { [node: string]: number }) => {
 const makeBarDataByNtype = (
   sampledNumDict: { [node: string]: number },
   ntype: string,
+  posNegIndex: number,
   topk: number = 20
 ) => {
   const ntypeDataList = Object.entries(sampledNumDict).filter(
@@ -92,12 +94,20 @@ const makeBarDataByNtype = (
   const data = ntypeDataList
     .map((ntypeData: [string, number]) => ntypeData[1])
     .slice(0, topk);
+  const backgroundColor = (posNegIndex: number) => {
+    if (posNegIndex == 0) {
+      return "#B7D5F8";
+    } else {
+      return "#FCC5D8";
+    }
+  };
   return {
     labels: labels,
     datasets: [
       {
         label: "sampled num",
         data: data,
+        backgroundColor: backgroundColor(posNegIndex),
       },
     ],
   };
@@ -174,6 +184,15 @@ const AllMiniBatchStats: React.FC = () => {
     responsive: true,
     maintainAspectRatio: false,
     indexAxis: "y",
+    scales: {
+      y: {
+        ticks: {
+          font: {
+            size: 10,
+          },
+        },
+      },
+    },
     plugins: {
       legend: {
         position: "top" as const,
@@ -201,40 +220,36 @@ const AllMiniBatchStats: React.FC = () => {
       </Grid.Container>
       <Spacer y={3} />
       <Grid.Container>
-        <Grid xs={6}>
-          <Grid.Container justify="center">
-            <Grid xs={12} justify="center">
-              <Text>positive</Text>
-            </Grid>
-            {ntypeList &&
-              ntypeList.map((ntype: string) => {
-                const data = makeBarDataByNtype(posSampledNumDict, ntype);
-                const vw = Math.floor(100 / ntypeList.length);
-                return (
-                  <Grid key={ntype} css={{ w: `${vw}vw`, h: `${vw * 1.5}vw` }}>
-                    <Bar options={barOptions} data={data} />
+        {[posSampledNumDict, negSampledNumDict].map(
+          (sampledNumDict: { [node: string]: number }, index: number) => {
+            return (
+              <Grid xs={6} key={index}>
+                <Grid.Container justify="center">
+                  <Grid xs={12} justify="center">
+                    {index === 0 ? <>Positive</> : <>Negative</>}
                   </Grid>
-                );
-              })}
-          </Grid.Container>
-        </Grid>
-        <Grid xs={6}>
-          <Grid.Container justify="center">
-            <Grid xs={12} justify="center">
-              <Text>negative</Text>
-            </Grid>
-            {ntypeList &&
-              ntypeList.map((ntype: string) => {
-                const data = makeBarDataByNtype(negSampledNumDict, ntype);
-                const vw = Math.floor(100 / ntypeList.length);
-                return (
-                  <Grid key={ntype} css={{ w: `${vw}vw`, h: `${vw * 1.5}vw` }}>
-                    <Bar options={barOptions} data={data} />
-                  </Grid>
-                );
-              })}
-          </Grid.Container>
-        </Grid>
+                  {ntypeList &&
+                    ntypeList.map((ntype: string) => {
+                      const data = makeBarDataByNtype(
+                        sampledNumDict,
+                        ntype,
+                        index
+                      );
+                      const vw = Math.floor(100 / ntypeList.length);
+                      return (
+                        <Grid
+                          key={ntype}
+                          css={{ w: `${vw}vw`, h: `${vw * 1.5}vw` }}
+                        >
+                          <Bar options={barOptions} data={data} />
+                        </Grid>
+                      );
+                    })}
+                </Grid.Container>
+              </Grid>
+            );
+          }
+        )}
       </Grid.Container>
     </>
   );

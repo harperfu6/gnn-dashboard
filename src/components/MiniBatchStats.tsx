@@ -2,7 +2,11 @@ import { Card, Dropdown, Grid, Spacer, Text } from "@nextui-org/react";
 import { Chart as ChartJS, registerables } from "chart.js";
 import { Bar } from "react-chartjs-2";
 import { Key, useState } from "react";
-import { MiniBatchStatsType } from "../models/MiniBatchData";
+import {
+  MiniBatchScoreType,
+  MiniBatchStatsType,
+} from "../models/MiniBatchData";
+import { getEtypeList } from "../utils";
 ChartJS.register(...registerables);
 
 const binnig = (
@@ -34,14 +38,17 @@ const binnig = (
 };
 
 const makeScoreData = (miniBatchStats: MiniBatchStatsType, etype: string) => {
+  const targetEtypeMiniBatchStats = miniBatchStats.score.filter(
+    (score: MiniBatchScoreType) => score.etype === etype
+  )[0];
   const [posScoreBinnigList, binnigRangeList] = binnig(
-    miniBatchStats.pos_score[etype].score,
+    targetEtypeMiniBatchStats.pos_score.score,
     0,
     1,
     0.1
   );
   const [negScoreBinnigList, _] = binnig(
-    miniBatchStats.neg_score[etype].score,
+    targetEtypeMiniBatchStats.neg_score.score,
     0,
     1,
     0.1
@@ -74,6 +81,7 @@ const MiniBatchStats: React.FC<MiniBatchStatsProps> = ({ miniBatchStats }) => {
   const [selectedEtype1, setSelectedEtype1] = useState<string>(defalutEtype);
   const [selectedEtype2, setSelectedEtype2] = useState<string>(defalutEtype);
 
+  console.log("aaa");
   const defalutScoreData = makeScoreData(miniBatchStats, defalutEtype);
   const [scoreData1, setScoreData1] = useState<object>(defalutScoreData);
   const [scoreData2, setScoreData2] = useState<object>(defalutScoreData);
@@ -81,7 +89,7 @@ const MiniBatchStats: React.FC<MiniBatchStatsProps> = ({ miniBatchStats }) => {
   const loss = miniBatchStats.loss;
   const auc = miniBatchStats.auc;
 
-  const etypeList = Object.keys(miniBatchStats.pos_score); // 代表して正例のリストからエッジ種別を取得
+  const etypeList = getEtypeList(miniBatchStats);
 
   const onSelectionChange1 = (keys: any) => {
     setSelectedEtype1(keys);

@@ -1,12 +1,17 @@
-type EdgeScoreType = {
+export type EdgeScoreType = {
   score: number[];
-  source_node_id: number[];
-  target_node_id: number[];
+  source_node_id: string[];
+  target_node_id: string[];
+};
+
+export type MiniBatchScoreType = {
+  etype: string;
+  pos_score: EdgeScoreType;
+  neg_score: EdgeScoreType;
 };
 
 export type MiniBatchStatsType = {
-  pos_score: { [etype: string]: EdgeScoreType };
-  neg_score: { [etype: string]: EdgeScoreType };
+  score: MiniBatchScoreType[];
   loss: number;
   auc: number;
 };
