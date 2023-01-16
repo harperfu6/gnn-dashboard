@@ -10,8 +10,22 @@ export type MiniBatchScoreType = {
   neg_score: EdgeScoreType;
 };
 
+export type NodeDict = {
+  ntype: string;
+  positive: string[];
+  negative: string[];
+};
+
+export type EdgeDict = {
+  etype: string;
+  positive: string[];
+  negative: string[];
+};
+
 export type MiniBatchStatsType = {
   score: MiniBatchScoreType[];
+  nodes: NodeDict[];
+  edges: EdgeDict[];
   loss: number;
   auc: number;
 };

@@ -81,7 +81,6 @@ const MiniBatchStats: React.FC<MiniBatchStatsProps> = ({ miniBatchStats }) => {
   const [selectedEtype1, setSelectedEtype1] = useState<string>(defalutEtype);
   const [selectedEtype2, setSelectedEtype2] = useState<string>(defalutEtype);
 
-  console.log("aaa");
   const defalutScoreData = makeScoreData(miniBatchStats, defalutEtype);
   const [scoreData1, setScoreData1] = useState<object>(defalutScoreData);
   const [scoreData2, setScoreData2] = useState<object>(defalutScoreData);

@@ -8,11 +8,10 @@ import EdgeItem from "../../components/EdgeItem";
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 type EdgeScoreProps = {
-  graphData: GraphData;
   miniBatchStats: MiniBatchStatsType;
 };
 
-const EdgeScore: React.FC<EdgeScoreProps> = ({ graphData, miniBatchStats }) => {
+const EdgeScore: React.FC<EdgeScoreProps> = ({ miniBatchStats }) => {
   return (
     <>
       <Grid.Container>

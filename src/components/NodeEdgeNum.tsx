@@ -1,32 +1,65 @@
 import { Grid } from "@nextui-org/react";
+import assert from "assert";
 import { Bar } from "react-chartjs-2";
 import { GraphData, MyLinkObject, MyNodeObject } from "../models/GraphData";
+import { EdgeDict, MiniBatchStatsType, NodeDict } from "../models/MiniBatchData";
+import { getEtypeList, getNtypeList } from "../utils";
 
-const numByNtype = (nodes: MyNodeObject[], ntype: string): number => {
-  return nodes.filter((myNode: MyNodeObject) => myNode.ntype === ntype).length;
+const numByNtype = (
+  nodes: NodeDict[],
+  ntype: string,
+  posNeg: string
+): number => {
+  const targetNodeDictList = nodes.filter(
+    (node: NodeDict) => node.ntype === ntype
+  );
+  assert(targetNodeDictList.length === 1);
+  const targetNodeDict = targetNodeDictList[0];
+  switch (posNeg) {
+    case "pos":
+      return targetNodeDict.positive.length;
+    case "neg":
+      return targetNodeDict.negative.length;
+    default:
+      console.log("invalid posNeg");
+      return 0;
+  }
 };
 
-const numByEtype = (edges: MyLinkObject[], etype: string): number => {
-  return edges.filter((myLink: MyLinkObject) => myLink.etype === etype).length;
+const numByEtype = (
+  edges: EdgeDict[],
+  etype: string,
+  posNeg: string
+): number => {
+  const targetEdgeDictList = edges.filter(
+    (edge: EdgeDict) => edge.etype === etype
+  );
+  assert(targetEdgeDictList.length === 1);
+  const targetEdgeDict = targetEdgeDictList[0];
+  switch (posNeg) {
+    case "pos":
+      return targetEdgeDict.positive.length;
+    case "neg":
+      return targetEdgeDict.negative.length;
+    default:
+      console.log("invalid posNeg");
+      return 0;
+  }
 };
 
 type NodeEdgeNumProps = {
-  graphData: GraphData;
+  miniBatchStats: MiniBatchStatsType;
 };
 
-const NodeEdgeNum: React.FC<NodeEdgeNumProps> = ({ graphData }) => {
-  const nodes = graphData.nodes;
-  const links = graphData.links;
+const NodeEdgeNum: React.FC<NodeEdgeNumProps> = ({ miniBatchStats }) => {
+  const ntypeList = getNtypeList(miniBatchStats);
+  const etypeList = getEtypeList(miniBatchStats);
 
-  const nodeNum = nodes.length;
-  const linkNum = links.length;
-
-  const ntypeList = graphData.ntype;
-  const etypeList = graphData.etype;
+  const nodes = miniBatchStats.nodes;
+  const edges = miniBatchStats.edges;
 
   const nodeChartsOptions = {
     responsive: true,
-    indexAxis: "y",
     maintainAspectRatio: false,
     plugins: {
       legend: {
@@ -34,14 +67,13 @@ const NodeEdgeNum: React.FC<NodeEdgeNumProps> = ({ graphData }) => {
       },
       title: {
         display: true,
-        text: `sampled num by node type (all num: ${nodeNum})`,
+        text: "sampled num",
       },
     },
   };
 
   const edgeChartsOptions = {
     responsive: true,
-    indexAxis: "y",
     maintainAspectRatio: false,
     plugins: {
       legend: {
@@ -49,7 +81,7 @@ const NodeEdgeNum: React.FC<NodeEdgeNumProps> = ({ graphData }) => {
       },
       title: {
         display: true,
-        text: `sampled num by edge type (all num: ${linkNum})`,
+        text: "sampled num",
       },
     },
   };
@@ -58,9 +90,12 @@ const NodeEdgeNum: React.FC<NodeEdgeNumProps> = ({ graphData }) => {
     labels: ntypeList,
     datasets: [
       {
-        label: "count",
-        data: ntypeList.map((ntype: string) => numByNtype(nodes, ntype)),
-        backgroundColor: "rgba(75, 192, 192, 0.8)",
+        label: "positive",
+        data: ntypeList.map((ntype: string) => numByNtype(nodes, ntype, 'pos')),
+      },
+      {
+        label: "negative",
+        data: ntypeList.map((ntype: string) => numByNtype(nodes, ntype, 'neg')),
       },
     ],
   };
@@ -69,9 +104,12 @@ const NodeEdgeNum: React.FC<NodeEdgeNumProps> = ({ graphData }) => {
     labels: etypeList,
     datasets: [
       {
-        label: "count",
-        data: etypeList.map((etype: string) => numByEtype(links, etype)),
-        backgroundColor: "rgba(75, 192, 192, 0.8)",
+        label: "positive",
+        data: etypeList.map((etype: string) => numByEtype(edges, etype, 'pos')),
+      },
+      {
+        label: "negative",
+        data: etypeList.map((etype: string) => numByEtype(edges, etype, 'neg')),
       },
     ],
   };
@@ -89,5 +127,6 @@ const NodeEdgeNum: React.FC<NodeEdgeNumProps> = ({ graphData }) => {
     </>
   );
 };
+
 
 export default NodeEdgeNum;

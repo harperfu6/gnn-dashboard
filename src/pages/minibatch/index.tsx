@@ -23,18 +23,12 @@ type MiniBatchStatsProps = {
 const MiniBatch: React.FC<MiniBatchStatsProps> = ({ epochId, sampleId }) => {
   const { executeId, setExecuteId } = useContext(ExexuteIdContext);
 
-  const { data: graphData, error: graphDataError } = useSWR(
-    epochId ? `/api/graph/${executeId}/${epochId}/${sampleId}` : null,
-    fetcher
-  );
-
   const { data: miniBatchStats, error: miniBatchStatsError } = useSWR(
     epochId ? `/api/minibatch_stats/${executeId}/${epochId}/${sampleId}` : null,
     fetcher
   );
 
-  if (miniBatchStatsError || graphDataError) return <div>failed to load</div>;
-  if (!miniBatchStats || !graphData) return <div>loading...</div>;
+  if (!miniBatchStats) return <div>loading...</div>;
 
   return (
     <>
@@ -45,12 +39,12 @@ const MiniBatch: React.FC<MiniBatchStatsProps> = ({ epochId, sampleId }) => {
               <MiniBatchStats miniBatchStats={miniBatchStats} />
             </Grid>
             <Grid xs={12}>
-              <NodeEdgeNum graphData={graphData} />
+              <NodeEdgeNum miniBatchStats={miniBatchStats} />
             </Grid>
           </Grid.Container>
         </Grid>
         <Grid xs={6} css={{ padding: "20px" }}>
-          <EdgeScore graphData={graphData} miniBatchStats={miniBatchStats} />
+          <EdgeScore miniBatchStats={miniBatchStats} />
         </Grid>
       </Grid.Container>
     </>

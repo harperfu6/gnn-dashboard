@@ -82,7 +82,6 @@ const EdgeItem: React.FC<EdgeItemType> = ({ miniBatchStats }) => {
 
   // etype item list
   const edgeItemDict = getEdgeItemDict(miniBatchStats, etypeList);
-  console.log(edgeItemDict);
   const [targetEdgeItemList, setTargetEdgeItemList] = useState<PosNegItemDict>(
     edgeItemDict[etypeList[0]]
   );
