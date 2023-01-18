@@ -8,8 +8,9 @@ import { Grid, Spacer, Text } from "@nextui-org/react";
 import MyNavbar from "../components/Nav";
 import { fetcher, getEpochSampleIdList } from "../utils";
 import { useContext, useState } from "react";
-import { AllMiniBatchStatsType } from "../models/MiniBatchData";
+import { AllMiniBatchStatsType, SampledNumType } from "../models/MiniBatchData";
 import { ExexuteIdContext } from "../context";
+import assert from "assert";
 ChartJS.register(...registerables);
 
 const makeLossList = (data: AllMiniBatchStatsType[]) => {
@@ -20,26 +21,170 @@ const makeAucList = (data: AllMiniBatchStatsType[]) => {
   return data.map((mbd: AllMiniBatchStatsType) => mbd.auc);
 };
 
-const appendDict = (
-  dict1: { [key: string]: number },
-  dict2: { [key: string]: number }
-) => {
-  Object.entries(dict2).forEach(([key, value]) => {
-    if (dict1[key]) {
-      dict1[key] = dict1[key] + value;
-    } else {
-      dict1[key] = value;
-    }
-  });
-
-  return dict1;
+type SampledNumDictType = {
+  nodeName: string;
+  sourceSampledNum: number;
+  targetSampledNum: number;
 };
 
-const makeSampledNumDict = (data: AllMiniBatchStatsType[], posNeg: string) => {
+type NtypeSampledNumDictType = {
+  ntype: string;
+  sampledNumDict: SampledNumDictType[];
+};
+
+const appendSampledNumDict = (
+  sampledNumDictList: SampledNumDictType[],
+  sampledNumDict: SampledNumDictType
+): SampledNumDictType[] => {
+  const interstSampledNumDictList = sampledNumDictList.filter(
+    (_sampledNumDict: SampledNumDictType) =>
+      _sampledNumDict.nodeName === sampledNumDict.nodeName
+  );
+  assert(interstSampledNumDictList.length <= 1);
+
+  // すでに格納済みの場合はサンプル数を加えて再格納
+  if (interstSampledNumDictList.length === 1) {
+    const interstSampledNumDict = interstSampledNumDictList[0];
+    const newSampledNumDict = {
+      nodeName: interstSampledNumDict.nodeName,
+      sourceSampledNum:
+        interstSampledNumDict.sourceSampledNum +
+        sampledNumDict.sourceSampledNum,
+      targetSampledNum:
+        interstSampledNumDict.targetSampledNum +
+        sampledNumDict.targetSampledNum,
+    };
+    const exceptSampledNumDictList = sampledNumDictList.filter(
+      (_sampledNumDict: SampledNumDictType) =>
+        _sampledNumDict.nodeName !== sampledNumDict.nodeName
+    );
+    return exceptSampledNumDictList.concat([newSampledNumDict]);
+  } else {
+    return sampledNumDictList.concat([sampledNumDict]);
+  }
+};
+
+const appendNtypeSampledNumDict = (
+  ntypeSampledNumDictList: NtypeSampledNumDictType[],
+  ntypeSampledNumDict: NtypeSampledNumDictType
+): NtypeSampledNumDictType[] => {
+  // 対象ノード種別について追加処理
+  // 既に格納済みのリストに
+  const sampledNumDictList = ntypeSampledNumDictList.filter(
+    (_ntypeSampledNumDict: NtypeSampledNumDictType) =>
+      _ntypeSampledNumDict.ntype === ntypeSampledNumDict.ntype
+  );
+
+  assert(sampledNumDictList.length <= 1);
+
+  if (sampledNumDictList.length === 1) {
+    const targetSampledNumDictList = sampledNumDictList[0].sampledNumDict;
+    // 追加するリスト
+    const appendedSampledNumDictList = ntypeSampledNumDict.sampledNumDict;
+    const newSampledNumDictList = appendedSampledNumDictList.reduce(
+      (acc: SampledNumDictType[], sampledNumDict: SampledNumDictType) => {
+        return appendSampledNumDict(acc, sampledNumDict);
+      },
+      targetSampledNumDictList
+    );
+    const newNtypeSampledNumDict = {
+      ntype: ntypeSampledNumDict.ntype,
+      sampledNumDict: newSampledNumDictList,
+    };
+    // 対象ノード以外
+    const exceptSampledNumDictList = ntypeSampledNumDictList.filter(
+      (_ntypeSampledNumDict: NtypeSampledNumDictType) =>
+        _ntypeSampledNumDict.ntype !== ntypeSampledNumDict.ntype
+    );
+
+    return exceptSampledNumDictList.concat([newNtypeSampledNumDict]);
+  } else {
+    // そもそも対象ノードが未格納の場合
+    return ntypeSampledNumDictList.concat([ntypeSampledNumDict]);
+  }
+};
+
+const sampledNum2NtypeSampledNumDict = (
+  sampledNum: SampledNumType,
+  posNeg: string
+): NtypeSampledNumDictType => {
+  const ntype = sampledNum.ntype;
+  const makeSampledNumDict = (rawSampledNumDict: {
+    [node: string]: number;
+  }): SampledNumDictType[] => {
+    return Object.entries(rawSampledNumDict).map(
+      ([node, num]: [string, number]) => {
+        if (sampledNum.source_target == "source") {
+          return {
+            nodeName: node,
+            sourceSampledNum: num,
+            targetSampledNum: 0,
+          };
+        } else {
+          return {
+            nodeName: node,
+            sourceSampledNum: 0,
+            targetSampledNum: num,
+          };
+        }
+      }
+    );
+  };
+  if (posNeg === "pos") {
+    const sampledNumDict = makeSampledNumDict(sampledNum.pos);
+    return {
+      ntype: ntype,
+      sampledNumDict: sampledNumDict,
+    };
+  } else {
+    const sampledNumDict = makeSampledNumDict(sampledNum.neg);
+    return {
+      ntype: ntype,
+      sampledNumDict: sampledNumDict,
+    };
+  }
+};
+
+const makeSampledNumDict = (
+  data: AllMiniBatchStatsType[],
+  posNeg: string
+): NtypeSampledNumDictType[] => {
+  const reduceAllMiniBatchList = (
+    allMiniBatchStatsList: AllMiniBatchStatsType,
+    posNeg: string
+  ): NtypeSampledNumDictType[] => {
+    return allMiniBatchStatsList.sampled_num.reduce(
+      (acc: NtypeSampledNumDictType[], sampledNum: SampledNumType) => {
+        const ntypeSampledNumDict = sampledNum2NtypeSampledNumDict(
+          sampledNum,
+          posNeg
+        );
+        return appendNtypeSampledNumDict(acc, ntypeSampledNumDict);
+      },
+      []
+    );
+  };
+
   return data.reduce(
-    (acc: { [node: string]: number }, current: AllMiniBatchStatsType) =>
-      appendDict(acc, current.sampled_num[posNeg]),
-    {}
+    (
+      acc: NtypeSampledNumDictType[],
+      allMiniBatchStatsList: AllMiniBatchStatsType
+    ) => {
+      const ntypeSampledNumDictList = reduceAllMiniBatchList(
+        allMiniBatchStatsList,
+        posNeg
+      );
+      return ntypeSampledNumDictList.reduce(
+        (
+          _acc: NtypeSampledNumDictType[],
+          ntypeSampledNumDict: NtypeSampledNumDictType
+        ) => {
+          return appendNtypeSampledNumDict(_acc, ntypeSampledNumDict);
+        },
+        acc
+      );
+    },
+    []
   );
 };
 
@@ -70,44 +215,46 @@ const makeLineData = (
   };
 };
 
-const getNtypeList = (sampledNumDict: { [node: string]: number }) => {
-  return Array.from(
-    new Set(Object.keys(sampledNumDict).map((key) => key.split("_")[0]))
-  );
-};
-
 const makeBarDataByNtype = (
-  sampledNumDict: { [node: string]: number },
-  ntype: string,
-  posNegIndex: number,
+  sampledNumDictList: SampledNumDictType[],
   topk: number = 20
 ) => {
-  const ntypeDataList = Object.entries(sampledNumDict).filter(
-    ([key, _]) => key.split("_")[0] == ntype
+  {
+    /* const sortedSampledNumDict: SampledNumDictType[] = sortFunc(); // -> topk */
+  }
+  const sortedSampledNumDict: SampledNumDictType[] = sampledNumDictList.slice(
+    0,
+    topk
+  ); // -> topk
+  const labels: string[] = sortedSampledNumDict.map(
+    (sampledNumDict: SampledNumDictType) => sampledNumDict.nodeName
   );
-  const sortedNtypeDataList = ntypeDataList.sort(
-    (a: [string, number], b: [string, number]) => b[1] - a[1]
+  const sourceData: number[] = sortedSampledNumDict.map(
+    (sampledNumDict: SampledNumDictType) => sampledNumDict.sourceSampledNum
   );
-  const labels = sortedNtypeDataList
-    .map((ntypeData: [string, number]) => ntypeData[0])
-    .slice(0, topk);
-  const data = ntypeDataList
-    .map((ntypeData: [string, number]) => ntypeData[1])
-    .slice(0, topk);
-  const backgroundColor = (posNegIndex: number) => {
-    if (posNegIndex == 0) {
-      return "#B7D5F8";
+  const targetData: number[] = sortedSampledNumDict.map(
+    (sampledNumDict: SampledNumDictType) => sampledNumDict.targetSampledNum
+  );
+
+  const backgroundColor = (sourceTarget: string) => {
+    if (sourceTarget === "source") {
+      return "#17C964";
     } else {
-      return "#FCC5D8";
+      return "#F9CB80";
     }
   };
   return {
     labels: labels,
     datasets: [
       {
-        label: "sampled num",
-        data: data,
-        backgroundColor: backgroundColor(posNegIndex),
+        label: "source",
+        data: sourceData,
+        backgroundColor: backgroundColor("source"),
+      },
+      {
+        label: "target",
+        data: targetData,
+        backgroundColor: backgroundColor("target"),
       },
     ],
   };
@@ -130,15 +277,19 @@ const AllMiniBatchStats: React.FC = () => {
 
   const lossList: number[] = makeLossList(allMiniBatchStatsList);
   const aucList: number[] = makeAucList(allMiniBatchStatsList);
-  const posSampledNumDict: { [node: string]: number } = makeSampledNumDict(
+
+  const posSampledNumDict: NtypeSampledNumDictType[] = makeSampledNumDict(
     allMiniBatchStatsList,
     "pos"
   );
-  const negSampledNumDict: { [node: string]: number } = makeSampledNumDict(
+  const negSampledNumDict: NtypeSampledNumDictType[] = makeSampledNumDict(
     allMiniBatchStatsList,
     "neg"
   );
-  const ntypeList = getNtypeList(posSampledNumDict);
+
+  const ntypeList: string[] = posSampledNumDict.map(
+    (ntypeSampledNumDict: NtypeSampledNumDictType) => ntypeSampledNumDict.ntype
+  );
 
   const lossOptions = {
     responsive: true,
@@ -221,7 +372,10 @@ const AllMiniBatchStats: React.FC = () => {
       <Spacer y={3} />
       <Grid.Container>
         {[posSampledNumDict, negSampledNumDict].map(
-          (sampledNumDict: { [node: string]: number }, index: number) => {
+          (
+            ntypeSampledNumDictList: NtypeSampledNumDictType[],
+            index: number
+          ) => {
             return (
               <Grid xs={6} key={index}>
                 <Grid.Container justify="center">
@@ -230,11 +384,12 @@ const AllMiniBatchStats: React.FC = () => {
                   </Grid>
                   {ntypeList &&
                     ntypeList.map((ntype: string) => {
-                      const data = makeBarDataByNtype(
-                        sampledNumDict,
-                        ntype,
-                        index
-                      );
+                      const sampledNumDict = ntypeSampledNumDictList.filter(
+                        (ntypeSampledNumDict: NtypeSampledNumDictType) =>
+                          ntypeSampledNumDict.ntype === ntype
+                      )[0].sampledNumDict;
+
+                      const data = makeBarDataByNtype(sampledNumDict, 20);
                       const vw = Math.floor(100 / ntypeList.length);
                       return (
                         <Grid

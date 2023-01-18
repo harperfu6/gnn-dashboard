@@ -30,9 +30,16 @@ export type MiniBatchStatsType = {
   auc: number;
 };
 
+export type SampledNumType = {
+  ntype: string;
+  source_target: string;
+  pos: { [node: string]: number };
+  neg: { [node: string]: number };
+};
+
 export type AllMiniBatchStatsType = {
   minibatch_id: string;
   loss: number;
   auc: number;
-  sampled_num: { [posNeg: string]: { [node: string]: number } };
+  sampled_num: SampledNumType[];
 };
