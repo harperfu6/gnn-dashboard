@@ -22,7 +22,7 @@ export type EdgeDict = {
   negative: string[];
 };
 
-export type MiniBatchStatsType = {
+export type DetaileMiniBatchStatsType = {
   score: MiniBatchScoreType[];
   nodes: NodeDict[];
   edges: EdgeDict[];
@@ -37,7 +37,7 @@ export type SampledNumType = {
   neg: { [node: string]: number };
 };
 
-export type AllMiniBatchStatsType = {
+export type SimpleMiniBatchStatsType = {
   minibatch_id: string;
   loss: number;
   auc: number;

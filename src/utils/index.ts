@@ -1,11 +1,21 @@
 import {
-  AllMiniBatchStatsType,
+  SimpleMiniBatchStatsType,
   MiniBatchScoreType,
-  MiniBatchStatsType,
+  DetaileMiniBatchStatsType,
 } from "../models/MiniBatchData";
 import * as _ from "underscore";
 
 export const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
+export const parseAllSimpleMiniBatchStats = (
+  allSimpleMiniBatchStatsList: string[]
+): SimpleMiniBatchStatsType[] => {
+  return allSimpleMiniBatchStatsList.reduce(
+    (acc: SimpleMiniBatchStatsType[], stringStats: string) =>
+      acc.concat([JSON.parse(stringStats)]),
+    []
+  );
+};
 
 export const getEpochSampleIdList = (data: AllMiniBatchStatsType[]) => {
   const miniBatchIdList = data.map(

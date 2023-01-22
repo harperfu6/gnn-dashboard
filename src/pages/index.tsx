@@ -6,7 +6,7 @@ import { Bar, Line } from "react-chartjs-2";
 import { Chart as ChartJS, registerables } from "chart.js";
 import { Grid, Spacer, Text } from "@nextui-org/react";
 import MyNavbar from "../components/Nav";
-import { fetcher, getEpochSampleIdList } from "../utils";
+import { fetcher, getEpochSampleIdList, parseAllSimpleMiniBatchStats } from "../utils";
 import { useContext, useState } from "react";
 import { AllMiniBatchStatsType, SampledNumType } from "../models/MiniBatchData";
 import { ExexuteIdContext } from "../context";
@@ -188,6 +188,23 @@ const makeSampledNumDict = (
   );
 };
 
+const sortSampledNumDict = (
+  sampledNumDictList: SampledNumDictType[]
+): SampledNumDictType[] => {
+  const sortFunc = (
+    sampledNumDict1: SampledNumDictType,
+    sampledNumDict2: SampledNumDictType
+  ) => {
+    const sampledNumSum1 =
+      sampledNumDict1.sourceSampledNum + sampledNumDict1.targetSampledNum;
+    const sampledNumSum2 =
+      sampledNumDict2.sourceSampledNum + sampledNumDict2.targetSampledNum;
+    return sampledNumSum2 - sampledNumSum1;
+  };
+
+  return sampledNumDictList.sort(sortFunc);
+};
+
 const makeLineData = (
   dataList: number[],
   label: string,
@@ -219,13 +236,9 @@ const makeBarDataByNtype = (
   sampledNumDictList: SampledNumDictType[],
   topk: number = 20
 ) => {
-  {
-    /* const sortedSampledNumDict: SampledNumDictType[] = sortFunc(); // -> topk */
-  }
-  const sortedSampledNumDict: SampledNumDictType[] = sampledNumDictList.slice(
-    0,
-    topk
-  ); // -> topk
+  const sortedSampledNumDict: SampledNumDictType[] = sortSampledNumDict(
+    sampledNumDictList
+  ).slice(0, topk); // -> topk
   const labels: string[] = sortedSampledNumDict.map(
     (sampledNumDict: SampledNumDictType) => sampledNumDict.nodeName
   );
@@ -263,13 +276,16 @@ const makeBarDataByNtype = (
 const AllMiniBatchStats: React.FC = () => {
   const { executeId, setExecuteId } = useContext(ExexuteIdContext);
 
-  const { data: allMiniBatchStatsList, error } = useSWR(
+  const { data: allMiniBatchStatsStringList, error } = useSWR(
     `/api/minibatch_stats/${executeId}`,
     fetcher
   );
 
   if (error) return <div>failed to load</div>;
-  if (!allMiniBatchStatsList) return <div>loading...</div>;
+  if (!allMiniBatchStatsStringList) return <div>loading...</div>;
+
+	const allMiniBatchStatsList = parseAllSimpleMiniBatchStats(allMiniBatchStatsStringList)
+	console.log(allMiniBatchStatsList)
 
   const { epochIdList, sampleIdList } = getEpochSampleIdList(
     allMiniBatchStatsList
@@ -287,9 +303,13 @@ const AllMiniBatchStats: React.FC = () => {
     "neg"
   );
 
-  const ntypeList: string[] = posSampledNumDict.map(
-    (ntypeSampledNumDict: NtypeSampledNumDictType) => ntypeSampledNumDict.ntype
-  );
+  // remove user
+  const ntypeList: string[] = posSampledNumDict
+    .map(
+      (ntypeSampledNumDict: NtypeSampledNumDictType) =>
+        ntypeSampledNumDict.ntype
+    )
+    .filter((ntype: string) => ntype !== "user");
 
   const lossOptions = {
     responsive: true,
@@ -331,28 +351,31 @@ const AllMiniBatchStats: React.FC = () => {
     },
   };
 
-  const barOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    indexAxis: "y",
-    scales: {
-      y: {
-        ticks: {
-          font: {
-            size: 10,
+  const ntypeBarOptions = (ntype: string) => {
+    const barOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      indexAxis: "y",
+      scales: {
+        y: {
+          ticks: {
+            font: {
+              size: 10,
+            },
           },
         },
       },
-    },
-    plugins: {
-      legend: {
-        position: "top" as const,
+      plugins: {
+        legend: {
+          position: "top" as const,
+        },
+        title: {
+          display: true,
+          text: ntype,
+        },
       },
-      title: {
-        display: false,
-        text: "sampled num",
-      },
-    },
+    };
+    return barOptions;
   };
 
   const lossData = makeLineData(lossList, "loss", epochIdList, sampleIdList);
@@ -396,7 +419,7 @@ const AllMiniBatchStats: React.FC = () => {
                           key={ntype}
                           css={{ w: `${vw}vw`, h: `${vw * 1.5}vw` }}
                         >
-                          <Bar options={barOptions} data={data} />
+                          <Bar options={ntypeBarOptions(ntype)} data={data} />
                         </Grid>
                       );
                     })}
