@@ -5,9 +5,7 @@ import NodeEdgeNum from "../../components/NodeEdgeNum";
 
 import { Chart as ChartJS, registerables } from "chart.js";
 import MiniBatchStats from "../../components/MiniBatchStats";
-import Graph from "../graph";
 import MyNavbar from "../../components/Nav";
-import { getEpochSampleIdList } from "../../utils";
 import { ExexuteIdContext } from "../../context";
 import EdgeScore from "../edge";
 ChartJS.register(...registerables);
@@ -89,17 +87,15 @@ const MiniBatchStatsMain = () => {
   const [epochId, setEpochId] = useState<number>(1);
   const [sampleId, setSampleId] = useState<number>(0);
 
-  const { data: allMiniBatchStatsList, error: allMiniBatchIdError } = useSWR(
-    `/api/minibatch_stats/${executeId}`,
+  const { data: epochSampleIdDict, error} = useSWR(
+    `/api/minibatch_stats/${executeId}/epoch-sample-id-list`,
     fetcher
   );
 
-  if (allMiniBatchIdError) return <div>failed to load minibatch_stats</div>;
-  if (!allMiniBatchStatsList) return <div>loading...</div>;
+  if (error) return <div>failed to load minibatch_stats</div>;
+  if (!epochSampleIdDict) return <div>loading...</div>;
 
-  const { epochIdList, sampleIdList } = getEpochSampleIdList(
-    allMiniBatchStatsList
-  );
+  const { epochIdList, sampleIdList } = epochSampleIdDict;
 
   const onEpochIdSelectionChange = (keys: any) => {
     setEpochId(keys);

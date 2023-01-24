@@ -6,7 +6,11 @@ import { Bar, Line } from "react-chartjs-2";
 import { Chart as ChartJS, registerables } from "chart.js";
 import { Grid, Spacer, Text } from "@nextui-org/react";
 import MyNavbar from "../components/Nav";
-import { fetcher, getEpochSampleIdList, parseAllSimpleMiniBatchStats } from "../utils";
+import {
+  fetcher,
+  getEpochSampleIdList,
+  parseAllSimpleMiniBatchStats,
+} from "../utils";
 import { useContext, useState } from "react";
 import { AllMiniBatchStatsType, SampledNumType } from "../models/MiniBatchData";
 import { ExexuteIdContext } from "../context";
@@ -276,20 +280,25 @@ const makeBarDataByNtype = (
 const AllMiniBatchStats: React.FC = () => {
   const { executeId, setExecuteId } = useContext(ExexuteIdContext);
 
+  const { data: epochSampleIdDict } = useSWR(
+    `/api/minibatch_stats/${executeId}/epoch-sample-id-list`,
+    fetcher
+  );
+
   const { data: allMiniBatchStatsStringList, error } = useSWR(
-    `/api/minibatch_stats/${executeId}`,
+    `/api/all_minibatch_stats/${executeId}`,
     fetcher
   );
 
   if (error) return <div>failed to load</div>;
   if (!allMiniBatchStatsStringList) return <div>loading...</div>;
 
-	const allMiniBatchStatsList = parseAllSimpleMiniBatchStats(allMiniBatchStatsStringList)
-	console.log(allMiniBatchStatsList)
-
-  const { epochIdList, sampleIdList } = getEpochSampleIdList(
-    allMiniBatchStatsList
+  const allMiniBatchStatsList = parseAllSimpleMiniBatchStats(
+    allMiniBatchStatsStringList
   );
+  console.log(allMiniBatchStatsList);
+
+  const { epochIdList, sampleIdList } = epochSampleIdDict;
 
   const lossList: number[] = makeLossList(allMiniBatchStatsList);
   const aucList: number[] = makeAucList(allMiniBatchStatsList);
@@ -298,6 +307,7 @@ const AllMiniBatchStats: React.FC = () => {
     allMiniBatchStatsList,
     "pos"
   );
+
   const negSampledNumDict: NtypeSampledNumDictType[] = makeSampledNumDict(
     allMiniBatchStatsList,
     "neg"

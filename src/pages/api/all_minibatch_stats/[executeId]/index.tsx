@@ -2,10 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import path from "path";
 import { promises as fs } from "fs";
 
-const handler = async (
-  req: NextApiRequest,
-  res: NextApiResponse<string[]>
-) => {
+const handler = async (req: NextApiRequest, res: NextApiResponse<string[]>) => {
   const { executeId } = req.query;
   const jsonDirectory = path.join(
     process.cwd(),
@@ -29,14 +26,17 @@ const handler = async (
   const readFile = async (fileName: string) =>
     await fs.readFile(jsonDirectory + `/${fileName}`, "utf8");
 
-	console.log(simpleStatsFileList)
+  const allSimpleMiniBatchStats = await simpleStatsFileList.reduce(
+    async (acc: string[], file: string) => {
+      const readFileContents = await readFile(file);
+      return (await acc).concat([readFileContents]);
+    },
+    []
+  );
 
-	const allSimpleMiniBatchStats = await simpleStatsFileList.reduce(async (acc: string[], file:string) => {
-		const readFileContents = await readFile(file);
-		return (await acc).concat([readFileContents]);
-	}, [])
-
-	return res.status(200).json(JSON.parse(JSON.stringify(allSimpleMiniBatchStats)));
+  return res
+    .status(200)
+    .json(JSON.parse(JSON.stringify(allSimpleMiniBatchStats)));
 };
 
 export default handler;
