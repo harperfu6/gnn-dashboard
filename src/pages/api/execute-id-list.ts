@@ -8,13 +8,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<string[]>) => {
     "datasets",
     "minibatch_stats_json_data"
   );
-  const reduceStringList = (strList: string[]) =>
-    strList.reduce((acc: string[], file) => acc.concat([file]), []);
 
-  const executeIdList = await fs.readdir(
-    jsonDirectory,
-    (err: any, files: string[]) => reduceStringList(files)
-  );
+  const executeIdList = await fs.readdir(jsonDirectory);
 
   return res.status(200).json(executeIdList);
 };

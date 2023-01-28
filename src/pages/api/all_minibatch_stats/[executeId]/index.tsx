@@ -1,8 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import path from "path";
 import { promises as fs } from "fs";
+import {SimpleMiniBatchStatsType} from "../../../../models/MiniBatchData";
 
-const handler = async (req: NextApiRequest, res: NextApiResponse<string[]>) => {
+const handler = async (
+  req: NextApiRequest,
+  res: NextApiResponse<SimpleMiniBatchStatsType>
+) => {
   const { executeId } = req.query;
   const jsonDirectory = path.join(
     process.cwd(),
@@ -11,32 +15,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<string[]>) => {
     `${executeId}`,
     "simple"
   );
-
-  const reduceFileList = (fileList: string[]) =>
-    fileList.reduce(
-      (acc: string[], file: string) => acc.concat([file.split("_")[0]]),
-      []
-    );
-
-  const simpleStatsFileList = await fs.readdir(
-    jsonDirectory,
-    (err: any, files: string[]) => reduceFileList(files)
+  const fileContents = await fs.readFile(
+    jsonDirectory + `/simple_stats.json`,
+    "utf8"
   );
-
-  const readFile = async (fileName: string) =>
-    await fs.readFile(jsonDirectory + `/${fileName}`, "utf8");
-
-  const allSimpleMiniBatchStats = await simpleStatsFileList.reduce(
-    async (acc: string[], file: string) => {
-      const readFileContents = await readFile(file);
-      return (await acc).concat([readFileContents]);
-    },
-    []
-  );
-
-  return res
-    .status(200)
-    .json(JSON.parse(JSON.stringify(allSimpleMiniBatchStats)));
+  return res.status(200).json(JSON.parse(fileContents));
 };
 
 export default handler;

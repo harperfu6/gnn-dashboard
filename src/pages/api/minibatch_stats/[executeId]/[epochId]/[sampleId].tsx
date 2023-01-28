@@ -1,11 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import path from "path";
 import { promises as fs } from "fs";
-import { MiniBatchStatsType } from "../../../../../models/MiniBatchData";
+import { DetaileMiniBatchStatsType } from "../../../../../models/MiniBatchData";
 
 const handler = async (
   req: NextApiRequest,
-  res: NextApiResponse<MiniBatchStatsType>
+  res: NextApiResponse<DetaileMiniBatchStatsType>
 ) => {
   const { executeId, epochId, sampleId } = req.query;
 

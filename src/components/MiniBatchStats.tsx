@@ -3,8 +3,8 @@ import { Chart as ChartJS, registerables } from "chart.js";
 import { Bar } from "react-chartjs-2";
 import { Key, useState } from "react";
 import {
+	DetaileMiniBatchStatsType,
   MiniBatchScoreType,
-  MiniBatchStatsType,
 } from "../models/MiniBatchData";
 import { getEtypeList } from "../utils";
 ChartJS.register(...registerables);
@@ -37,7 +37,7 @@ const binnig = (
   return [binnigList, binnigRangeList];
 };
 
-const makeScoreData = (miniBatchStats: MiniBatchStatsType, etype: string) => {
+const makeScoreData = (miniBatchStats: DetaileMiniBatchStatsType, etype: string) => {
   const targetEtypeMiniBatchStats = miniBatchStats.score.filter(
     (score: MiniBatchScoreType) => score.etype === etype
   )[0];
@@ -72,7 +72,7 @@ const makeScoreData = (miniBatchStats: MiniBatchStatsType, etype: string) => {
 };
 
 type MiniBatchStatsProps = {
-  miniBatchStats: MiniBatchStatsType;
+  miniBatchStats: DetaileMiniBatchStatsType;
 };
 
 const MiniBatchStats: React.FC<MiniBatchStatsProps> = ({ miniBatchStats }) => {

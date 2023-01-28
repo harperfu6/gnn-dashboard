@@ -30,16 +30,23 @@ export type DetaileMiniBatchStatsType = {
   auc: number;
 };
 
-export type SampledNumType = {
+export type SampledNumDictType = {
+  nodeName: string;
+  sourceSampledNum: number;
+  targetSampledNum: number;
+};
+
+export type NtypeSampledNumDictType = {
   ntype: string;
-  source_target: string;
-  pos: { [node: string]: number };
-  neg: { [node: string]: number };
+  sampledNumDictList: SampledNumDictType[];
 };
 
 export type SimpleMiniBatchStatsType = {
-  minibatch_id: string;
-  loss: number;
-  auc: number;
-  sampled_num: SampledNumType[];
+  minibatchIdList: string[];
+  lossList: number[];
+  aucList: number[];
+  posSampledNumList: NtypeSampledNumDictType[];
+  negSampledNumList: NtypeSampledNumDictType[];
 };
+
+

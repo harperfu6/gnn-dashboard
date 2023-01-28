@@ -8,6 +8,7 @@ import MiniBatchStats from "../../components/MiniBatchStats";
 import MyNavbar from "../../components/Nav";
 import { ExexuteIdContext } from "../../context";
 import EdgeScore from "../edge";
+import {DetaileMiniBatchStatsType} from "../../models/MiniBatchData";
 ChartJS.register(...registerables);
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -21,7 +22,7 @@ type MiniBatchStatsProps = {
 const MiniBatch: React.FC<MiniBatchStatsProps> = ({ epochId, sampleId }) => {
   const { executeId, setExecuteId } = useContext(ExexuteIdContext);
 
-  const { data: miniBatchStats, error: miniBatchStatsError } = useSWR(
+	const { data: miniBatchStats, error: miniBatchStatsError } = useSWR<DetaileMiniBatchStatsType, Error>(
     epochId ? `/api/minibatch_stats/${executeId}/${epochId}/${sampleId}` : null,
     fetcher
   );
