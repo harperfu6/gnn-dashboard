@@ -1,25 +1,11 @@
-import { Grid } from "@nextui-org/react";
-import { MiniBatchStatsType } from "../../models/MiniBatchData";
-import EdgeItem from "../../components/EdgeItem";
+import Heatmap from "../../components/Heatmap";
 
-type EdgeScoreProps = {
-  miniBatchStats: MiniBatchStatsType;
-};
-
-const EdgeScore: React.FC<EdgeScoreProps> = ({ miniBatchStats }) => {
+const EdgeStats: React.FC = () => {
   return (
     <>
-      <Grid.Container>
-        <Grid>
-          <Grid.Container>
-            <Grid xs={12}>
-              <EdgeItem miniBatchStats={miniBatchStats} />
-            </Grid>
-          </Grid.Container>
-        </Grid>
-      </Grid.Container>
+      <Heatmap />
     </>
   );
 };
 
-export default EdgeScore;
+export default EdgeStats;
