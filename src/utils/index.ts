@@ -19,3 +19,44 @@ export const getNtypeList = (miniBatchStats: DetaileMiniBatchStatsType): string[
     )
   );
 };
+
+export const binnig = (
+  num_list: number[],
+  min: number,
+  max: number,
+  interval: number
+) => {
+  const arrayLength = Math.round((max - min) / interval);
+  let binnigList = Array.from({ length: arrayLength }, () => 0);
+  const binnigRangeList = [...Array(arrayLength)].map(
+    (_, i) => min + i * interval
+  );
+
+  num_list.forEach((num, n_i) => {
+    [...Array(arrayLength)]
+      .map((_, i) => i)
+      .forEach((binRange, r_i) => {
+        // 浮動少数の問題のため整数で比較
+        const digit_num = 4; // 少数4桁までは対応
+        if (r_i == arrayLength - 1) {
+          if (
+            parseInt(num * 10 ** digit_num) >=
+            parseInt(binnigRangeList[r_i] * 10 ** digit_num)
+          ) {
+            binnigList[r_i] = binnigList[r_i] + 1;
+          }
+        } else {
+          if (
+            parseInt(num * 10 ** digit_num) >=
+              parseInt(binnigRangeList[r_i] * 10 ** digit_num) &&
+            parseInt(num * 10 ** digit_num) <
+              parseInt(binnigRangeList[r_i + 1] * 10 ** digit_num)
+          ) {
+            binnigList[r_i] = binnigList[r_i] + 1;
+          }
+        }
+      });
+  });
+
+  return [binnigList, binnigRangeList];
+};

@@ -2,42 +2,18 @@ import { Card, Dropdown, Grid, Spacer, Text } from "@nextui-org/react";
 import { Chart as ChartJS, registerables } from "chart.js";
 import { Bar } from "react-chartjs-2";
 import { Key, useState } from "react";
+import { binnig } from "../utils";
 import {
-	DetaileMiniBatchStatsType,
+  DetaileMiniBatchStatsType,
   MiniBatchScoreType,
 } from "../models/MiniBatchData";
 import { getEtypeList } from "../utils";
 ChartJS.register(...registerables);
 
-const binnig = (
-  num_list: number[],
-  min: number,
-  max: number,
-  interval: number
+const makeScoreData = (
+  miniBatchStats: DetaileMiniBatchStatsType,
+  etype: string
 ) => {
-  const arrayLength = Math.round((max - min) / interval);
-  let binnigList = Array.from({ length: arrayLength }, () => 0);
-  const binnigRangeList = [...Array(arrayLength)].map(
-    (_, i) => min + i * interval
-  );
-
-  num_list.forEach((num, n_i) => {
-    binnigRangeList.forEach((binRange, r_i) => {
-      if (num >= binnigRangeList[r_i + 1]) {
-        binnigList[r_i + 1] = binnigList[r_i + 1] + 1;
-      } else if (
-        num >= binnigRangeList[r_i] &&
-        num < binnigRangeList[r_i + 1]
-      ) {
-        binnigList[r_i] = binnigList[r_i] + 1;
-      }
-    });
-  });
-
-  return [binnigList, binnigRangeList];
-};
-
-const makeScoreData = (miniBatchStats: DetaileMiniBatchStatsType, etype: string) => {
   const targetEtypeMiniBatchStats = miniBatchStats.score.filter(
     (score: MiniBatchScoreType) => score.etype === etype
   )[0];

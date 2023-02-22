@@ -1,5 +1,7 @@
 import { Chart as ChartJS, registerables } from "chart.js";
 import { Bar } from "react-chartjs-2";
+import _ from "underscore";
+import {DetaileMiniBatchStatsType} from "../models/MiniBatchData";
 ChartJS.register(...registerables);
 
 const mapHeight = 20;
@@ -27,13 +29,30 @@ const generateLabels = function () {
   return labels;
 };
 
-type HeatmapProps = {};
 
-const Heatmap: React.FC<HeatmapProps> = () => {
+type HeatmapProps = {
+  heatmap2dArray: number[][];
+};
+
+const Heatmap: React.FC<HeatmapProps> = ({ heatmap2dArray }) => {
+	console.log(heatmap2dArray)
+  const array2dataset = (heatmap2dArray: number[][]) => {
+    return heatmap2dArray.map((scoreList: number[]) => ({
+			data: scoreList.map((_) => 1),
+      borderWidth: 1,
+      borderColor: "#FFFFFF",
+      backgroundColor: "skyblue",
+      barPercentage: 0.99,
+      categoryPercentage: 0.99,
+    }));
+  };
+
   const HeatmapData = {
     labels: generateLabels(),
     datasets: generateDatasets(),
   };
+    {/* labels: 'tmp', */}
+    {/* datasets: array2dataset(heatmap2dArray), */}
 
   const HeatmapOptions = {
     plugins: {

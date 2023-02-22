@@ -23,6 +23,7 @@ export type EdgeDict = {
 };
 
 export type DetaileMiniBatchStatsType = {
+  minibatch_id: string;
   score: MiniBatchScoreType[];
   nodes: NodeDict[];
   edges: EdgeDict[];
