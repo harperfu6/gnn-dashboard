@@ -6,6 +6,7 @@ import { useContext } from "react";
 import { ExexuteIdContext } from "../../context";
 import * as _ from "underscore";
 import { binnig } from "../../utils";
+import {transpose} from "underscore";
 
 const etype = "app-user";
 const sourceNodeId = "12";
@@ -98,14 +99,15 @@ const makeHeatmap2dArray = (
     binnig(_negScoreList, 0, 1, 0.1)[0]
 	);
 
-  return [binnigPosScoreList, binnigNegScoreList];
+  return [transpose(binnigPosScoreList), binnigNegScoreList];
 };
 
 const EdgeStats: React.FC = () => {
   {
     /* const { executeId, setExecuteId } = useContext(ExexuteIdContext); */
   }
-  const executeId = "dummy_data";
+  {/* const executeId = "dummy_data"; */}
+  const executeId = "all-reversed-edge";
 
   const { data: detailStatsList, error: miniBatchStatsError } = useSWR<
     DetaileMiniBatchStatsType[],

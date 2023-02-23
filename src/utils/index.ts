@@ -6,11 +6,15 @@ import * as _ from "underscore";
 
 export const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-export const getEtypeList = (miniBatchStats: DetaileMiniBatchStatsType): string[] => {
+export const getEtypeList = (
+  miniBatchStats: DetaileMiniBatchStatsType
+): string[] => {
   return miniBatchStats.score.map((score: MiniBatchScoreType) => score.etype);
 };
 
-export const getNtypeList = (miniBatchStats: DetaileMiniBatchStatsType): string[] => {
+export const getNtypeList = (
+  miniBatchStats: DetaileMiniBatchStatsType
+): string[] => {
   const etypeList = getEtypeList(miniBatchStats);
   return _.uniq(
     etypeList.reduce(
@@ -19,6 +23,14 @@ export const getNtypeList = (miniBatchStats: DetaileMiniBatchStatsType): string[
     )
   );
 };
+
+export const transpose = (array2d: number[][]) =>
+  array2d[0].map((col, i) => array2d.map((row) => row[i]));
+
+export const maxValueof2dArray = (array2d: number[][]) =>
+  array2d
+    .map((array1d: number[]) => array1d.reduce((a, b) => (a > b ? a : b)))
+    .reduce((a, b) => (a > b ? a : b));
 
 export const binnig = (
   num_list: number[],

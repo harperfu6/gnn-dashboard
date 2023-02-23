@@ -1,58 +1,50 @@
 import { Chart as ChartJS, registerables } from "chart.js";
 import { Bar } from "react-chartjs-2";
 import _ from "underscore";
-import {DetaileMiniBatchStatsType} from "../models/MiniBatchData";
+import { DetaileMiniBatchStatsType } from "../models/MiniBatchData";
+import { maxValueof2dArray } from "../utils";
 ChartJS.register(...registerables);
 
-const mapHeight = 20;
-const mapWidth = 40;
 
-const generateDatasets = function () {
-  const datasets = [];
-  for (let i = 0; i < mapHeight; i++) {
-    datasets.push({
-      data: new Array(mapWidth).fill(1),
-      borderWidth: 1,
-      borderColor: "#FFFFFF",
-      backgroundColor: "skyblue",
-      barPercentage: 0.99,
-      categoryPercentage: 0.99,
-    });
-  }
-  return datasets;
-};
-const generateLabels = function () {
+const _generateLabels = (heatmap2dArray: number[][]) => {
   let labels = [];
-  for (var i = 1; i < mapWidth + 1; i++) {
+  for (var i = 1; i < heatmap2dArray[0].length + 1; i++) {
     labels.push(i);
   }
   return labels;
 };
-
 
 type HeatmapProps = {
   heatmap2dArray: number[][];
 };
 
 const Heatmap: React.FC<HeatmapProps> = ({ heatmap2dArray }) => {
-	console.log(heatmap2dArray)
+  console.log(heatmap2dArray);
+
+  const maxCount = maxValueof2dArray(heatmap2dArray);
+
+  const countList2color = (countList: number[]) => {
+    const count2opa = (count: number) => (count / maxCount).toFixed(2);
+    return countList.map(
+      (count: number) => `rgba(135,206,235,${count2opa(count)})`
+    );
+  };
+
   const array2dataset = (heatmap2dArray: number[][]) => {
-    return heatmap2dArray.map((scoreList: number[]) => ({
-			data: scoreList.map((_) => 1),
+    return heatmap2dArray.map((countList: number[]) => ({
+      data: countList.map((_) => 0.1),
       borderWidth: 1,
       borderColor: "#FFFFFF",
-      backgroundColor: "skyblue",
+      backgroundColor: countList2color(countList),
       barPercentage: 0.99,
       categoryPercentage: 0.99,
     }));
   };
 
   const HeatmapData = {
-    labels: generateLabels(),
-    datasets: generateDatasets(),
+    labels: _generateLabels(heatmap2dArray),
+    datasets: array2dataset(heatmap2dArray),
   };
-    {/* labels: 'tmp', */}
-    {/* datasets: array2dataset(heatmap2dArray), */}
 
   const HeatmapOptions = {
     plugins: {
@@ -84,8 +76,8 @@ const Heatmap: React.FC<HeatmapProps> = ({ heatmap2dArray }) => {
         stacked: true,
         ticks: {
           min: 0,
-          stepSize: 1,
-          display: false,
+          stepSize: 0.1,
+          display: true,
         },
       },
     },
