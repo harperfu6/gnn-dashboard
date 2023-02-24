@@ -116,6 +116,7 @@ const EdgeStats: React.FC = () => {
 
   if (miniBatchStatsError) return <div>failed to load</div>;
   if (!detailStatsList) return <div>loading...</div>;
+  if (detailStatsList) return <div>transforming...</div>;
 
   const [binnigPosScoreList, binnigNegScoreList] = makeHeatmap2dArray(detailStatsList, etype, sourceNodeId);
 

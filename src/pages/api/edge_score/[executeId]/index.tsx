@@ -1,9 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import path from "path";
 import fs from "fs";
-import promise from "fs";
+import { promises as pfs } from "fs";
 import util from "util";
-const readDir = util.promisify(fs.readdir);
 
 import { DetaileMiniBatchStatsType } from "../../../../models/MiniBatchData";
 
@@ -14,56 +13,30 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     "datasets",
     "minibatch_stats_json_data",
     `${executeId}`,
-		"detail/"
+    "detail/"
   );
 
+	const readDir = util.promisify(fs.readdir);
 
+  const readFile = async (filename: string) =>
+    await pfs.readFile(jsonDirectory + `/${filename}`, "utf8");
 
-  {/* const readFiles = async (dirName: string) => { */}
-  {/*   fs.readdir(dirName, async (_, filenames: string[]) => { */}
-			{/* await Promise.all(filenames.map(async (filename:string) => { */}
-  {/*        const content = await promise.readFile(`${dirName}/${filename}`, "utf-8"); */}
-				{/* console.log(content) */}
-			{/* })) */}
-  {/*   }); */}
-  {/* })}; */}
+  const readFiles = async (dirName: string) => {
+    const filenames = await readDir(dirName);
 
-	{/* await readFiles(jsonDirectory) */}
-	{/* const contentsList = [] */}
+    const contentList = await filenames.reduce(
+      async (contentList: any[], filename: string) => {
+        const content = await readFile(filename);
+        return (await contentList).concat([JSON.parse(content)]);
+      },
+      []
+    );
+    return contentList;
+  };
 
+  const contentList = await readFiles(jsonDirectory);
 
-
-
-	function readFiles(dirname, onFileContent, onError) {
-	  fs.readdir(dirname, function(err, filenames) {
-	    if (err) {
-	      onError(err);
-	      return;
-	    }
-			console.log(filenames)
-	    filenames.forEach(function(filename) {
-	      fs.readFile(dirname + filename, 'utf-8', function(err, content) {
-	        if (err) {
-	          onError(err);
-	          return;
-	        }
-	        onFileContent(filename, content);
-	      });
-	    });
-	  });
-	}
-
-	var data = {};
-	readFiles(jsonDirectory, function(filename, content) {
-	  data[filename] = content;
-	}, function(err) {
-	  throw err;
-	});
-
-	console.log(data)
-
-
-  return res.status(200).json(JSON.stringify(data));
+  return res.status(200).json(contentList);
 };
 
 export default handler;
